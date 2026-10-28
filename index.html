@@ -67,7 +67,7 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 .sub.hannes { color: var(--hannes); }
 .sub.jonas { color: var(--jonas); }
 .sub.other { color: #e9e9e9; }
-.narr { position: absolute; left: 50%; bottom: 5%; transform: translateX(-50%); width: 80%; text-align: center; font-family: var(--narr); font-style: italic; font-size: clamp(13px, 1.9vw, 22px); line-height: 1.35; color: var(--erz); pointer-events: none; z-index: 4; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 14px rgba(0, 0, 0, 0.8); }
+.narr { position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%); width: 70%; padding: 6px 14px; border-radius: 10px; background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0) 72%); text-align: center; font-family: var(--narr); font-style: italic; font-size: clamp(13px, 1.9vw, 22px); line-height: 1.35; color: var(--erz); pointer-events: none; z-index: 4; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 14px rgba(0, 0, 0, 0.8); }
 .who { position: absolute; left: 1.5%; top: 2.5%; display: flex; gap: 8px; z-index: 2; }
 .who button { position: relative; width: clamp(44px, 6vw, 70px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 2px solid var(--panel-line); background: #dfe6ea; cursor: pointer; padding: 0; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6); opacity: 0.72; }
 .who button img { position: absolute; width: 230%; left: -60%; top: -6%; }
@@ -146,6 +146,17 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 @container stage (max-height: 540px) { .choice.mitbild { grid-template-columns: minmax(70px, 22%) 1fr; } }
 /* Am Lagerfeuer: Auswahl oben links, damit die Runde ums Feuer sichtbar bleibt */
 .choice.camp { left: 2%; top: 17%; bottom: auto; transform: none; width: min(42%, 400px); background: rgba(13, 17, 16, 0.84); }
+/* Pausenmenü */
+.pause { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(6, 9, 10, 0.62); backdrop-filter: blur(2px); }
+.pause .pbox { display: grid; gap: 10px; min-width: min(80%, 300px); padding: 18px 20px; background: var(--panel); border: 1.5px solid var(--accent); border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); text-align: center; }
+.pause h3 { margin: 0 0 4px; font-family: var(--display); color: var(--accent); letter-spacing: 0.08em; font-size: clamp(18px, 2.4vw, 26px); }
+.pause .pbtns { display: grid; gap: 8px; }
+.pause p { margin: 0; font-size: clamp(13px, 1.6vw, 16px); }
+.pause button, .overlay .play { font: inherit; font-weight: 700; padding: 10px 16px; border-radius: 6px; border: 1px solid var(--panel-line); background: rgba(255, 255, 255, 0.06); color: var(--fg); cursor: pointer; }
+.pause button.primary, .overlay .play { background: var(--accent); border-color: var(--accent); color: #1a1408; }
+.pause button:hover, .pause button:focus-visible { border-color: var(--accent); outline: none; }
+.overlay .play { font-family: var(--display); letter-spacing: 0.08em; font-size: clamp(14px, 1.9vw, 19px); padding: 9px 26px; margin: 2px auto 6px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
+.overlay .play:hover, .overlay .play:focus-visible { filter: brightness(1.1); outline: 2px solid #fff3; }
 .choice button:hover, .choice button:focus-visible { border-color: var(--accent); background: rgba(232, 176, 68, 0.15); outline: none; }
 .toast { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); z-index: 7; padding: 8px 16px; border-radius: 999px; background: rgba(20, 16, 8, 0.85); border: 1px solid var(--accent); color: var(--accent); font-family: var(--display); font-size: clamp(13px, 1.7vw, 18px); letter-spacing: 0.05em; pointer-events: none; white-space: nowrap; }
 .toast.goal { color: #c4e6a6; border-color: var(--ok); background: rgba(10, 20, 8, 0.85); }
@@ -527,6 +538,7 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
     <div id="gainBox"></div>
     <div class="selchip" id="selchip" hidden><svg viewBox="0 0 40 40" id="selIcon" aria-hidden="true"></svg><span><b id="selName"></b> + … <small>auf etwas tippen</small></span><button type="button" id="selX" aria-label="Gegenstand zurücklegen">×</button></div>
     <div class="tools" id="tools" hidden>
+      <button type="button" id="pauseBtn" aria-label="Pause und Menü" title="Pause (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
       <button type="button" id="fsBtn" aria-label="Vollbild" title="Vollbild"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
       <button type="button" id="muteBtn" aria-pressed="false" aria-label="Ton ausschalten (M)" title="Ton ausschalten (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5v14l-4.5-4.5H4z" fill="currentColor"/><path class="waves" d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/><path class="cross" d="M16 9.5l5 5M21 9.5l-5 5" style="display:none"/></svg></button>
       <button type="button" id="reveal" aria-pressed="false" aria-label="Alle klickbaren Stellen zeigen (Leertaste halten)" title="Klickbare Stellen zeigen (Leertaste halten)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></button>
@@ -534,6 +546,11 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
       <button type="button" id="bookBtn" aria-label="Tagebuch öffnen" title="Tagebuch (B)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4.5h6a2 2 0 0 1 2 2V20a1.5 1.5 0 0 0-1.5-1.5H4zM20 4.5h-6a2 2 0 0 0-2 2V20a1.5 1.5 0 0 1 1.5-1.5H20z"/></svg></button>
     </div>
     <div class="cursorlabel" id="cursorlabel" hidden></div>
+    <div class="pause" id="pause" hidden role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><div class="pbox">
+      <h3 id="pauseTitle">Pause</h3>
+      <div class="pbtns" id="pauseMain"><button type="button" class="primary" id="pResume">Weiterspielen</button><button type="button" id="pRestart">Tag neu starten</button><button type="button" id="pMenu">Zum Hauptmenü</button></div>
+      <div class="pbtns" id="pauseConfirm" hidden><p id="pConfirmText"></p><button type="button" class="primary" id="pYes">Ja</button><button type="button" id="pNo">Abbrechen</button></div>
+    </div></div>
     <div class="mg" id="mg" hidden><div class="mghead"><div><h3 id="mgTitle"></h3><p id="mgText"></p></div></div><div class="mgbody" id="mgBody"></div><div class="mgfoot" id="mgFoot"></div></div>
     <div class="book" id="book" hidden>
       <header><h2>Survival-Tagebuch</h2><button type="button" class="x" id="bookClose">Schließen</button></header>
@@ -544,6 +561,7 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
       <h2>Survive Schweden</h2>
       <h3>Hammer-Beutel · Sieben Tage in der Wildnis</h3>
       <p>Stefan hat Hannes und Jonas an zwei verschiedenen Ufern ausgesetzt. Erst an Tag 4 finden sie sich am Seepferdchensee wieder. Danach geht es zu Fuß, nur mit Landkarte, bis zu Stefans rotem Haus.</p>
+      <button type="button" class="play" id="menuPlay">Spiel starten</button>
       <div class="days" id="dayList"></div>
       <div class="row">
         <label><input type="checkbox" id="optRealtime"> Echtzeit-Modus (Durst und Hunger sinken auch beim Nichtstun)</label>

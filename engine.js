@@ -708,7 +708,7 @@ window.Ausgesetzt = (function () {
     }
     if (D.timed) D.timed(E);
   }
-  const paused = () => !started || !$("choice").hidden || !$("half").hidden || !$("dayEnd").hidden || !$("over").hidden || !$("mg").hidden || !$("book").hidden || !$("dayIntro").hidden || !$("vplayer").hidden || narrating || hero().done;
+  const paused = () => !started || !$("pause").hidden || !$("choice").hidden || !$("half").hidden || !$("dayEnd").hidden || !$("over").hidden || !$("mg").hidden || !$("book").hidden || !$("dayIntro").hidden || !$("vplayer").hidden || narrating || hero().done;
   function gameOver(id) {
     if (!$("over").hidden) return;
     stopTalk(true); token++;
@@ -1543,6 +1543,8 @@ window.Ausgesetzt = (function () {
     selected = null; $("selchip").hidden = true; $("cursorlabel").hidden = true; closeVerbs(); setReveal(false);
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
     for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = false;
+    for (const id of ["restart", "toMenu"]) $(id).hidden = false;
+    $("pause").hidden = true;
     setGoalPanel(false);
     started = false;
     if (ac) ac.suspend();
@@ -1584,7 +1586,7 @@ window.Ausgesetzt = (function () {
     stopBookClip();
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
     for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = true;
-    for (const id of ["dayEnd", "half", "over", "book", "dayIntro"]) $(id).hidden = true;
+    for (const id of ["dayEnd", "half", "over", "book", "dayIntro", "pause"]) $(id).hidden = true;
     $("choice").hidden = true; $("mg").hidden = true; $("inv").hidden = true; closeVerbs();
     $("goals").innerHTML = ""; $("where").textContent = "Hauptmenü";
     if (S) { $("rooms").innerHTML = ""; $("actors").innerHTML = ""; $("dots").innerHTML = ""; }
@@ -1608,6 +1610,13 @@ window.Ausgesetzt = (function () {
     }
     $("optRealtime").checked = SAVE.realtime;
     $("menuCredits").hidden = !(SAVE.week && SAVE.week[7]);
+    // Großer Knopf: beim ersten Mal "Spiel starten", danach der nächste noch nicht geschaffte Tag
+    let naechster = 1;
+    while (naechster < 7 && SAVE.week && SAVE.week[naechster]) naechster++;
+    naechster = Math.min(naechster, SAVE.unlocked || 1);
+    $("menuPlay").textContent = SAVE.week && SAVE.week[1] ? `Weiterspielen · Tag ${naechster}` : "Spiel starten";
+    $("menuPlay").onclick = () => (naechster === 1 && !SAVE.introSeen ? playIntro(() => startDay(1)) : startDay(naechster));
+    for (const id of ["restart", "toMenu"]) $(id).hidden = true;
   }
   $("optRealtime").addEventListener("change", (e) => { SAVE.realtime = e.target.checked; save(); });
   function playIntro(then) {
@@ -1621,9 +1630,9 @@ window.Ausgesetzt = (function () {
   $("halfGo").addEventListener("click", () => { $("half").hidden = true; switchTo($("halfGo").dataset.to); });
   $("deNext").addEventListener("click", () => startDay(S.day + 1));
   $("deMenu").addEventListener("click", toMenu);
-  $("toMenu").addEventListener("click", toMenu);
+  $("toMenu").addEventListener("click", () => { if (S && started) { setPause(true); $("pMenu").click(); } else toMenu(); });
   $("overGo").addEventListener("click", () => startDay(S.day));
-  $("restart").addEventListener("click", () => { if (S) startDay(S.day); });
+  $("restart").addEventListener("click", () => { if (S && started) { setPause(true); $("pRestart").click(); } else if (S) startDay(S.day); });
   function renderMute() {
     $("mute").textContent = SAVE.muted ? "Ton an" : "Ton aus";
     const b = $("muteBtn");
@@ -1782,6 +1791,30 @@ window.Ausgesetzt = (function () {
     }
     [h.x, h.y, h.lift] = b; h.bob = 0; h.pose = null; placeAll();
   }
+
+  // ---------- Pause ----------
+  // Hält die Zeit an (paused() sieht das offene Fenster), Neustart und Hauptmenü nur mit Rückfrage
+  let pauseAktion = null;
+  function setPause(open) {
+    if (open && (!S || !started)) return;
+    $("pause").hidden = !open; $("pauseMain").hidden = false; $("pauseConfirm").hidden = true;
+    if (open) { stopTalk(); closeVerbs(); setInv(false); if (ac) ac.suspend(); $("pResume").focus({ preventScroll: true }); }
+    else if (ac && started && !SAVE.muted) ac.resume().catch(() => {});
+  }
+  function frage(text, aktion) { pauseAktion = aktion; $("pConfirmText").textContent = text; $("pauseMain").hidden = true; $("pauseConfirm").hidden = false; $("pYes").focus({ preventScroll: true }); }
+  $("pauseBtn").addEventListener("click", (e) => { e.stopPropagation(); setPause(true); });
+  $("pResume").addEventListener("click", (e) => { e.stopPropagation(); setPause(false); });
+  $("pRestart").addEventListener("click", (e) => { e.stopPropagation(); frage("Den Tag neu starten? Was du heute geschafft hast, geht verloren.", () => startDay(S.day)); });
+  $("pMenu").addEventListener("click", (e) => { e.stopPropagation(); frage("Zum Hauptmenü? Gespeichert wird nur am Ende eines Tages.", toMenu); });
+  $("pYes").addEventListener("click", (e) => { e.stopPropagation(); const a = pauseAktion; $("pause").hidden = true; if (a) a(); });
+  $("pNo").addEventListener("click", (e) => { e.stopPropagation(); $("pauseMain").hidden = false; $("pauseConfirm").hidden = true; $("pResume").focus({ preventScroll: true }); });
+  $("pause").addEventListener("click", (e) => { e.stopPropagation(); if (e.target === $("pause")) setPause(false); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || !S || !started) return;
+    if (!$("pause").hidden) { setPause(false); return; }
+    // Esc schließt erst Menüs; ist nichts offen, kommt die Pause
+    if ($("verbs").hidden && !invOpen && !selected && !subDone && $("choice").hidden && $("mg").hidden && $("book").hidden && $("dayEnd").hidden && $("half").hidden) setPause(true);
+  }, true); // capture: vor dem normalen Esc-Handler prüfen, der Menüs schließt
 
   // ---------- Schnittstelle für die Tagesdateien ----------
   const E = {
