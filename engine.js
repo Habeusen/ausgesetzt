@@ -304,7 +304,15 @@ window.Ausgesetzt = (function () {
     const done = S.goals[owner()];
     box.innerHTML = `<b>${D.together ? "Hannes & Jonas" : CHARS[active].name}</b>` +
       list.map(([k, label]) => `<div class="goal${done[k] ? " done" : ""}" id="goal-${k}"><i></i>${label}</div>`).join("");
+    // Dieselben Ziele in der Szene (Handy)
+    const n = list.filter(([k]) => done[k]).length;
+    $("gminiCount").textContent = list.length ? `Ziele ${n}/${list.length}` : "Ziele";
+    $("gminiBtn").classList.toggle("alle", list.length > 0 && n === list.length);
+    $("gpanelWho").textContent = D.together ? "Hannes & Jonas" : CHARS[active].name;
+    $("gpanelList").innerHTML = list.map(([k, label]) => `<li class="${done[k] ? "done" : ""}"><i></i>${label}</li>`).join("");
   }
+  function setGoalPanel(open) { $("gpanel").hidden = !open; $("gminiBtn").setAttribute("aria-expanded", open); }
+  $("gminiBtn").addEventListener("click", (e) => { e.stopPropagation(); setGoalPanel($("gpanel").hidden); });
   function goal(k) {
     const g = S.goals[owner()];
     if (g[k]) return;
@@ -312,6 +320,7 @@ window.Ausgesetzt = (function () {
     renderGoals();
     const el = $("goal-" + k);
     if (el) el.classList.add("flash");
+    const mini = $("gminiBtn"); mini.classList.remove("flash"); void mini.offsetWidth; mini.classList.add("flash");
     const label = (D.goals[owner()].find((x) => x[0] === k) || [k, k])[1];
     toast(`Ziel erreicht: ${label}`, "goal");
     if (D.together && started) S.cheer = true;
@@ -750,6 +759,7 @@ window.Ausgesetzt = (function () {
   scene.addEventListener("click", (e) => {
     if (!started) return;
     if (pressShown) return; // Das war ein langes Drücken, kein Klick
+    if (!$("gpanel").hidden) { setGoalPanel(false); return; } // Antippen der Szene schließt die Zielliste
     if (subDone) { stopTalk(); return; }
     if (paused()) { if (hero().done && !S.inNight && $("half").hidden && $("dayEnd").hidden && $("choice").hidden) say(active === "hannes" ? "Zzz … Ich schlaf schon." : "Lass mich, ich lieg schon im Schlafsack.", ++token); return; }
     if (!$("verbs").hidden) { closeVerbs(); return; }
@@ -1094,7 +1104,8 @@ window.Ausgesetzt = (function () {
     $("choice").hidden = true; $("mg").hidden = true;
     selected = null; closeVerbs(); setReveal(false);
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
-    for (const id of ["hud", "who", "bag", "tools"]) $(id).hidden = false;
+    for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = false;
+    setGoalPanel(false);
     started = false;
     if (ac) ac.suspend();
     show(active);
@@ -1130,7 +1141,7 @@ window.Ausgesetzt = (function () {
     $("lights").innerHTML = ""; lightsKey = "";
     stopBookClip();
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
-    for (const id of ["hud", "who", "bag", "tools"]) $(id).hidden = true;
+    for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = true;
     for (const id of ["dayEnd", "half", "over", "book", "dayIntro"]) $(id).hidden = true;
     $("choice").hidden = true; $("mg").hidden = true; $("inv").hidden = true; closeVerbs();
     $("goals").innerHTML = ""; $("where").textContent = "Hauptmenü";
