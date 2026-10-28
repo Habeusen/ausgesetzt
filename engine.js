@@ -56,7 +56,10 @@ window.Ausgesetzt = (function () {
   // Welche Schicht wie laut ist, hängt von Raum, Uhrzeit und Wetter ab (updateAmbience).
   let ac = null, ambGain = null, amb = null;
   // Umgebung leise im Hintergrund, beim Sprechen fast weg; Stimmen laufen über einen eigenen Verstärker (voiceBus)
-  const AMB = 0.5, AMB_DUCK = 0.12;
+  const AMB0 = 0.5, AMB_DUCK0 = 0.12;
+  // Lautstärke-Regler im Pausenmenü (0 bis 1, gespeichert)
+  const vol = (k) => (SAVE.vol && SAVE.vol[k] != null ? SAVE.vol[k] : 1);
+  let AMB = AMB0 * vol("umgebung"), AMB_DUCK = AMB_DUCK0 * vol("umgebung");
   let voiceBus = null;
   // Originaltöne aus den Videos sind leise und schwanken: anheben und mit einem Kompressor glätten
   function routeVoice(a) {
@@ -73,7 +76,7 @@ window.Ausgesetzt = (function () {
     ambGain = ac.createGain(); ambGain.gain.value = SAVE.muted ? 0 : AMB; ambGain.connect(ac.destination);
     const comp = ac.createDynamicsCompressor();
     comp.threshold.value = -26; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
-    voiceBus = ac.createGain(); voiceBus.gain.value = 1.9;
+    voiceBus = ac.createGain(); voiceBus.gain.value = 1.9 * vol("stimmen");
     voiceBus.connect(comp).connect(ac.destination);
     const noise = (brown) => {
       const b = ac.createBuffer(1, ac.sampleRate * 4, ac.sampleRate), d = b.getChannelData(0);
@@ -181,7 +184,7 @@ window.Ausgesetzt = (function () {
     const ac = probe ? probe.ac : audioCtx();
     if (!probe && (!ac || SAVE.muted || !started)) return;
     if (!probe && ac.state !== "running") ac.resume().catch(() => {});
-    if (!probe && !sfxBus) { sfxBus = ac.createGain(); sfxBus.gain.value = 0.6; sfxBus.connect(ac.destination); }
+    if (!probe && !sfxBus) { sfxBus = ac.createGain(); sfxBus.gain.value = 0.6 * vol("geraeusche"); sfxBus.connect(ac.destination); }
     const now = ac.currentTime, sr = ac.sampleRate, out = ac.createGain();
     out.gain.value = (vol == null ? 1 : vol) * (PEGEL[name] || 1); out.connect(probe ? probe.ziel : sfxBus);
     const rausch = (sek, form) => { const b = ac.createBuffer(1, Math.max(1, Math.floor(sr * sek)), sr), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * form(i / d.length, i / sr); const n = ac.createBufferSource(); n.buffer = b; return n; };
@@ -639,6 +642,7 @@ window.Ausgesetzt = (function () {
       const el = $("b-" + k);
       el.style.width = h[k].toFixed(1) + "%";
       el.classList.toggle("low", h[k] < 20);
+      const v = $("v-" + k); v.textContent = Math.round(h[k]); v.classList.toggle("low", h[k] < 20);
     }
     $("b-fourth").classList.toggle("stamina", D.fourth === "stamina");
     $("fourthRow").title = D.fourth === "stamina" ? "Ausdauer" : "Stimmung";
@@ -1155,6 +1159,7 @@ window.Ausgesetzt = (function () {
   async function run(key, verb) {
     let t = ++token;
     clearTemp();
+    if (coachStep >= 0) coach(verb.item ? 2 : Math.max(coachStep, 1));
     const h = hero(), item = verb.item;
     if (item) select(null);
     if (key.startsWith("char:")) {
@@ -1544,6 +1549,7 @@ window.Ausgesetzt = (function () {
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
     for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = false;
     for (const id of ["restart", "toMenu"]) $(id).hidden = false;
+    document.body.classList.remove("imMenue");
     $("pause").hidden = true;
     setGoalPanel(false);
     started = false;
@@ -1575,6 +1581,7 @@ window.Ausgesetzt = (function () {
     if (t !== token) return;
     if (D.chars[active].narr) await say({ narr: D.chars[active].narr }, t);
     if (D.start) { const out = await D.start(E); if (out) await lines(out, t); }
+    coachStep = -1; coach(0);
   }
   function toMenu() {
     token++; stopTalk(true); started = false;
@@ -1586,9 +1593,10 @@ window.Ausgesetzt = (function () {
     stopBookClip();
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
     for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = true;
-    for (const id of ["dayEnd", "half", "over", "book", "dayIntro", "pause"]) $(id).hidden = true;
+    for (const id of ["dayEnd", "half", "over", "book", "dayIntro", "pause", "coach"]) $(id).hidden = true;
     $("choice").hidden = true; $("mg").hidden = true; $("inv").hidden = true; closeVerbs();
-    $("goals").innerHTML = ""; $("where").textContent = "Hauptmenü";
+    $("goals").innerHTML = ""; $("where").textContent = "";
+    document.body.classList.add("imMenue");
     if (S) { $("rooms").innerHTML = ""; $("actors").innerHTML = ""; $("dots").innerHTML = ""; }
     S = null;
     renderMenu();
@@ -1617,6 +1625,7 @@ window.Ausgesetzt = (function () {
     $("menuPlay").textContent = SAVE.week && SAVE.week[1] ? `Weiterspielen · Tag ${naechster}` : "Spiel starten";
     $("menuPlay").onclick = () => (naechster === 1 && !SAVE.introSeen ? playIntro(() => startDay(1)) : startDay(naechster));
     for (const id of ["restart", "toMenu"]) $(id).hidden = true;
+    document.body.classList.add("imMenue");
   }
   $("optRealtime").addEventListener("change", (e) => { SAVE.realtime = e.target.checked; save(); });
   function playIntro(then) {
@@ -1646,7 +1655,7 @@ window.Ausgesetzt = (function () {
     SAVE.muted = !SAVE.muted; save(); renderMute();
     if (SAVE.muted) stopBookClip();
     if (ambGain) { ambGain.gain.cancelScheduledValues(ac.currentTime); ambGain.gain.value = SAVE.muted ? 0 : AMB; }
-    if (sfxBus) sfxBus.gain.value = SAVE.muted ? 0 : 0.6;
+    if (sfxBus) sfxBus.gain.value = SAVE.muted ? 0 : 0.6 * vol("geraeusche");
     if (SAVE.muted && playing) { playing.pause(); playing = null; clearTimeout(subTimer); subTimer = setTimeout(stopTalk, 1800); }
     if (SAVE.muted) stopLinger();
   }
@@ -1792,6 +1801,21 @@ window.Ausgesetzt = (function () {
     [h.x, h.y, h.lift] = b; h.bob = 0; h.pose = null; placeAll();
   }
 
+  // ---------- Einführung (nur beim ersten Spiel von Tag 1) ----------
+  const COACH = [
+    "Tippe auf etwas im Bild, das dich interessiert. <b>Auge</b> = ansehen, <b>Hand</b> = benutzen. Auf den Boden tippen = laufen.",
+    "Deine Ausrüstung ist im <b>Drybag</b> unten links. Wähle einen Gegenstand und tippe dann auf etwas im Bild, zum Beispiel die Flasche auf den See.",
+    "Oben stehen deine <b>Ziele</b> für heute. Kommst du nicht weiter, hilft die <b>Glühbirne</b>. Oben links wechselst du zu Jonas."
+  ];
+  let coachStep = -1;
+  function coach(step) {
+    if (SAVE.tutDone || !S || S.day !== 1 || step <= coachStep) return;
+    coachStep = step;
+    if (step >= COACH.length) { $("coach").hidden = true; SAVE.tutDone = true; save(); return; }
+    $("coachText").innerHTML = COACH[step]; $("coach").hidden = false;
+  }
+  $("coachOk").addEventListener("click", (e) => { e.stopPropagation(); coach(coachStep + 1); });
+
   // ---------- Pause ----------
   // Hält die Zeit an (paused() sieht das offene Fenster), Neustart und Hauptmenü nur mit Rückfrage
   let pauseAktion = null;
@@ -1800,6 +1824,19 @@ window.Ausgesetzt = (function () {
     $("pause").hidden = !open; $("pauseMain").hidden = false; $("pauseConfirm").hidden = true;
     if (open) { stopTalk(); closeVerbs(); setInv(false); if (ac) ac.suspend(); $("pResume").focus({ preventScroll: true }); }
     else if (ac && started && !SAVE.muted) ac.resume().catch(() => {});
+  }
+  function setVol(k, v) {
+    SAVE.vol = Object.assign({}, SAVE.vol, { [k]: v }); save();
+    AMB = AMB0 * vol("umgebung"); AMB_DUCK = AMB_DUCK0 * vol("umgebung");
+    if (!ac) return;
+    if (k === "umgebung" && ambGain && !SAVE.muted) ambGain.gain.setTargetAtTime(AMB, ac.currentTime, 0.1);
+    if (k === "stimmen" && voiceBus) voiceBus.gain.value = 1.9 * v;
+    if (k === "geraeusche" && sfxBus) { sfxBus.gain.value = SAVE.muted ? 0 : 0.6 * v; }
+  }
+  for (const el of document.querySelectorAll("#pause input[type=range]")) {
+    el.value = Math.round(vol(el.dataset.vol) * 100);
+    el.addEventListener("input", () => setVol(el.dataset.vol, el.value / 100));
+    el.addEventListener("click", (e) => e.stopPropagation());
   }
   function frage(text, aktion) { pauseAktion = aktion; $("pConfirmText").textContent = text; $("pauseMain").hidden = true; $("pauseConfirm").hidden = false; $("pYes").focus({ preventScroll: true }); }
   $("pauseBtn").addEventListener("click", (e) => { e.stopPropagation(); setPause(true); });
