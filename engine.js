@@ -170,6 +170,73 @@ window.Ausgesetzt = (function () {
     n.connect(f).connect(g).connect(ac.destination); n.start();
   }
 
+  // ---------- Geräusche zu den Animationen ----------
+  // Alles im Browser erzeugt: Platschen, Hacken, Rascheln, Gluckern, Schnarchen, Papier, Kratzen am Fels
+  let sfxBus = null;
+  // Pegel je Geräusch, damit alle etwa gleich deutlich über der Umgebung liegen und unter den Stimmen bleiben
+  const PEGEL = { platsch: 3.2, raus: 2.6, hacken: 0.7, rascheln: 1, kratzen: 3, papier: 1.1, gluckern: 1.7, schnarchen: 2.8 };
+  const audioCtx = () => ac;
+  // probe: { ac, ziel } rendert unhörbar in einen anderen Kontext (nur für automatische Tests)
+  function sfx(name, vol, probe) {
+    const ac = probe ? probe.ac : audioCtx();
+    if (!probe && (!ac || SAVE.muted || !started)) return;
+    if (!probe && ac.state !== "running") ac.resume().catch(() => {});
+    if (!probe && !sfxBus) { sfxBus = ac.createGain(); sfxBus.gain.value = 0.6; sfxBus.connect(ac.destination); }
+    const now = ac.currentTime, sr = ac.sampleRate, out = ac.createGain();
+    out.gain.value = (vol == null ? 1 : vol) * (PEGEL[name] || 1); out.connect(probe ? probe.ziel : sfxBus);
+    const rausch = (sek, form) => { const b = ac.createBuffer(1, Math.max(1, Math.floor(sr * sek)), sr), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * form(i / d.length, i / sr); const n = ac.createBufferSource(); n.buffer = b; return n; };
+    const filter = (typ, f, q) => { const b = ac.createBiquadFilter(); b.type = typ; b.frequency.value = f; if (q) b.Q.value = q; return b; };
+    const ton = (t0, f0, f1, len, laut, typ) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = typ || "sine"; o.frequency.setValueAtTime(f0, t0); o.frequency.exponentialRampToValueAtTime(f1, t0 + len);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(laut, t0 + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t0 + len);
+      o.connect(g).connect(out); o.start(t0); o.stop(t0 + len + 0.02);
+    };
+    const tropfen = (t0, n, spanne, laut) => { for (let i = 0; i < n; i++) { const f = 900 + Math.random() * 1400; ton(t0 + Math.random() * spanne, f, f * 1.8, 0.05 + Math.random() * 0.05, laut); } };
+    if (name === "platsch") {
+      // Ins Wasser: dumpfer Schwall, der höher wird, dann Tropfen
+      const n = rausch(0.9, (k) => Math.pow(1 - k, 2.2)), f = filter("bandpass", 500, 0.8);
+      f.frequency.setValueAtTime(350, now); f.frequency.exponentialRampToValueAtTime(1600, now + 0.5);
+      const g = ac.createGain(); g.gain.value = 0.9; n.connect(f).connect(g).connect(out); n.start(now);
+      tropfen(now + 0.25, 7, 0.9, 0.12);
+    } else if (name === "raus") {
+      const n = rausch(0.6, (k) => Math.sin(Math.PI * k) * 0.6), f = filter("bandpass", 900, 0.9);
+      n.connect(f).connect(out); n.start(now);
+      tropfen(now + 0.1, 10, 1.4, 0.09);
+    } else if (name === "hacken") {
+      // Klinge ins Holz: kurzes Klacken und ein tiefer Schlag
+      const n = rausch(0.04, (k) => 1 - k), f = filter("highpass", 1800);
+      const g = ac.createGain(); g.gain.value = 0.7; n.connect(f).connect(g).connect(out); n.start(now);
+      ton(now, 170, 70, 0.16, 0.8, "triangle");
+    } else if (name === "rascheln") {
+      // Stoff und Laub beim Kriechen: Rauschen in kleinen Stößen
+      const n = rausch(0.9, (k, t) => (0.5 + 0.5 * Math.sin(t * 38 + Math.sin(t * 9) * 3)) * Math.sin(Math.PI * k));
+      n.connect(filter("bandpass", 2600, 0.7)).connect(out); n.start(now);
+    } else if (name === "kratzen") {
+      const n = rausch(0.35, (k) => Math.sin(Math.PI * k) * (0.6 + 0.4 * Math.random()));
+      const g = ac.createGain(); g.gain.value = 0.5; n.connect(filter("bandpass", 1300, 1.2)).connect(g).connect(out); n.start(now);
+    } else if (name === "papier") {
+      const n = rausch(0.7, (k, t) => (Math.random() < 0.35 ? 1 : 0.15) * Math.sin(Math.PI * k));
+      const g = ac.createGain(); g.gain.value = 0.5; n.connect(filter("highpass", 2400)).connect(g).connect(out); n.start(now);
+    } else if (name === "gluckern") {
+      // Schlucke aus der Flasche
+      for (let i = 0; i < 4; i++) { const t0 = now + 0.15 + i * 0.38; ton(t0, 240, 520, 0.11, 0.5); ton(t0 + 0.05, 380, 760, 0.07, 0.25); }
+    } else if (name === "schnarchen") {
+      // Einatmen mit Schnarren, kurz still, Ausatmen
+      const ein = rausch(1.3, (k) => Math.sin(Math.PI * k) * (0.6 + 0.4 * Math.sin(k * 1300)));
+      const ge = ac.createGain(); ge.gain.value = 0.9; ein.connect(filter("lowpass", 380)).connect(ge).connect(out); ein.start(now);
+      const aus = rausch(1.1, (k) => Math.sin(Math.PI * k) * 0.5);
+      const ga = ac.createGain(); ga.gain.value = 0.5; aus.connect(filter("bandpass", 900, 0.6)).connect(ga).connect(out); aus.start(now + 1.5);
+    }
+  }
+  // Hacken: Schläge im Takt der Hack-Bewegung, solange die Figur hackt
+  function hackTakt(id) {
+    const h = S && S.chars[id];
+    if (!h || h.pose !== "hacken" || h.room !== hero().room) return;
+    sfx("hacken", 0.9);
+    setTimeout(() => hackTakt(id), 600);
+  }
+
   // ---------- Szene aufbauen ----------
   function buildRooms() {
     const g = $("rooms");
@@ -1108,6 +1175,7 @@ window.Ausgesetzt = (function () {
     await wait(600);
     // Ins Tarp kriechen: kniend hinein und dabei ausblenden
     const kriecher = plan.filter((p) => p.tent).map((p) => ({ p, h: S.chars[p.id], x0: S.chars[p.id].x, y0: S.chars[p.id].y }));
+    sfx("rascheln", 0.8);
     if (kriecher.length && !(reduce || window.__testFast)) {
       const t0 = performance.now();
       await new Promise((res) => {
@@ -1130,6 +1198,7 @@ window.Ausgesetzt = (function () {
       else { const b = p.bed; h.x = b[0]; h.y = b[1]; h.dir = b[2] || 1; h.lift = b[3] || 0; h.pose = "liegen"; }
     }
     placeAll(); renderFront();
+    sfx("schnarchen", 0.7);
     await wait(2200);
   }
   async function sleep() {
@@ -1350,6 +1419,7 @@ window.Ausgesetzt = (function () {
     SAVE.muted = !SAVE.muted; save(); renderMute();
     if (SAVE.muted) stopBookClip();
     if (ambGain) { ambGain.gain.cancelScheduledValues(ac.currentTime); ambGain.gain.value = SAVE.muted ? 0 : AMB; }
+    if (sfxBus) sfxBus.gain.value = SAVE.muted ? 0 : 0.6;
     if (SAVE.muted && playing) { playing.pause(); playing = null; clearTimeout(subTimer); subTimer = setTimeout(stopTalk, 1800); }
     if (SAVE.muted) stopLinger();
   }
@@ -1377,7 +1447,15 @@ window.Ausgesetzt = (function () {
   const MG_POSE = { angeln: "angeln", karte: "karte", feuer: "knien", schwedenfeuer: "knien", kescher: "knien", loeffel: "hacken" };
   const ruhig = () => reduce || window.__testFast;
   const warte = (ms) => new Promise((r) => setTimeout(r, ruhig() ? 0 : ms));
-  function tempPose(id, pose) { const h = S.chars[id]; if (!h || h.done) return; h.pose = pose; (S.temp = S.temp || []).push([id, pose]); place(id); }
+  function tempPose(id, pose) {
+    const h = S.chars[id]; if (!h || h.done) return;
+    const vorher = h.pose;
+    h.pose = pose; (S.temp = S.temp || []).push([id, pose]); place(id);
+    if (pose === vorher || ruhig()) return;
+    if (pose === "hacken") setTimeout(() => hackTakt(id), 240);
+    else if (pose === "trinken") sfx("gluckern", 0.8);
+    else if (pose === "karte") sfx("papier", 0.7);
+  }
   function clearTemp() {
     if (!S || !S.temp) return;
     for (const [id, pose] of S.temp) { const h = S.chars[id]; if (h && h.pose === pose && !h.done) h.pose = null; }
@@ -1410,6 +1488,7 @@ window.Ausgesetzt = (function () {
     ids = ids.filter((id) => S.chars[id] && !S.chars[id].away);
     for (const id of ids) { const h = S.chars[id]; h.hiddenActor = false; h.lift = 0; h.pose = "knien"; const a = $("actor-" + id); if (a && !ruhig()) a.setAttribute("opacity", "0"); }
     S.sleepZ = []; renderFront(); placeAll();
+    sfx("rascheln", 0.7);
     await blende(ids, 0, 1, 600);
     for (const id of ids) { const a = $("actor-" + id); if (a) a.removeAttribute("opacity"); }
     await warte(350);
@@ -1428,11 +1507,13 @@ window.Ausgesetzt = (function () {
     h.target = null; h.pose = "knien"; h.dir = spot.tent[0] >= h.x ? 1 : -1; placeAll();
     await warte(500);
     const x0 = h.x, y0 = h.y;
+    sfx("rascheln", 0.8);
     await blende([active], 1, 0, 600, (k) => { h.x = x0 + (spot.tent[0] - x0) * k * 0.6; h.y = y0 + (spot.tent[1] - y0) * k * 0.6; place(active); });
     const a = $("actor-" + active);
     h.hiddenActor = true; h.pose = null; if (a) a.removeAttribute("opacity");
     S.sleepZ = [{ id: active, room: h.room, x: spot.tent[0], y: spot.tent[1] - 60, s: 1.5 * scaleAt(spot.tent[1], room()) }];
     placeAll(); renderFront();
+    sfx("schnarchen", 0.7);
     await warte(2200);
     if (!S) return;
     h.x = x0; h.y = y0;
@@ -1454,8 +1535,8 @@ window.Ausgesetzt = (function () {
       requestAnimationFrame(step);
     });
   }
-  async function bathIn(id, b) { const h = S.chars[id]; h.target = null; h.pose = null; h.dir = b[0] >= h.x ? 1 : -1; await tween(id, { x: b[0], y: b[1], sink: b[2] || 330 }, 900); }
-  async function bathOut(id, st) { const h = S.chars[id]; h.dir = st[0] >= h.x ? 1 : -1; await tween(id, { x: st[0], y: st[1], sink: 0 }, 800); h.sink = 0; placeAll(); }
+  async function bathIn(id, b) { const h = S.chars[id]; h.target = null; h.pose = null; h.dir = b[0] >= h.x ? 1 : -1; setTimeout(() => sfx("platsch"), 300); await tween(id, { x: b[0], y: b[1], sink: b[2] || 330 }, 900); }
+  async function bathOut(id, st) { const h = S.chars[id]; h.dir = st[0] >= h.x ? 1 : -1; sfx("raus", 0.8); await tween(id, { x: st[0], y: st[1], sink: 0 }, 800); h.sink = 0; placeAll(); }
 
   // ---------- Klettern ----------
   // Figur klettert in drei Zügen nach (x, y), sichtbar um lift höher. Oben steht sie wieder.
@@ -1468,6 +1549,7 @@ window.Ausgesetzt = (function () {
     for (let i = 1; i <= ZUEGE && !(reduce || window.__testFast); i++) {
       // Je Zug: kurz ducken, dann ein Stück hoch (runter geht's schneller)
       const von = [h.x, h.y, h.lift], nach = a0.map((v, j) => v + (b[j] - v) * i / ZUEGE), dauer = runter ? 260 : 380, t0 = performance.now();
+      sfx("kratzen", runter ? 0.5 : 0.7);
       await new Promise((res) => {
         const step = (now) => {
           const k = Math.min(1, (now - t0) / dauer), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -1540,5 +1622,13 @@ window.Ausgesetzt = (function () {
     renderMenu();
     requestAnimationFrame(tick);
   }
-  return { day, boot, minigame: (name, fn) => { MINIGAMES[name] = fn; }, CHARS, E };
+  // Nur für automatische Tests: ein Geräusch stumm rendern und Spitze/Lautheit messen
+  async function sfxProbe(name) {
+    const oc = new OfflineAudioContext(1, 44100 * 3, 44100), g = oc.createGain(); g.gain.value = 0.6; g.connect(oc.destination);
+    sfx(name, 1, { ac: oc, ziel: g });
+    const d = (await oc.startRendering()).getChannelData(0);
+    let peak = 0, sum = 0; for (const v of d) { peak = Math.max(peak, Math.abs(v)); sum += v * v; }
+    return { peak: +peak.toFixed(3), rms: +Math.sqrt(sum / d.length).toFixed(4) };
+  }
+  return { day, boot, sfxProbe, minigame: (name, fn) => { MINIGAMES[name] = fn; }, CHARS, E };
 })();
