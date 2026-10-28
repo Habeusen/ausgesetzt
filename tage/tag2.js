@@ -63,12 +63,13 @@
     eggs: { wetter: "Der Wetterbericht für Camp Jonas", spinne: "Die Unterwasserspinne", tuer: "Die Heiligtümer des Todes", neun: "Da waren's nur noch neun", unfall: "Der Unfall mit der Unterhose", lkw: "Der rückwärtsfahrende LKW" },
     noSignal: "Kein Empfang. Vielleicht oben am Forstweg?",
     looks: {
+      fels: "Mein Felsen von gestern. Von da oben ging das OK raus.",
       "j-wurzel": "Mein Wurzelteller. Harz ohne Ende.", "j-spuren": "Frische Wühlspuren? Nee, die sind von gestern.", "j-kraut": "Johanniskraut. Gelb, fünf Blätter.",
       "j-beeren": "Die Erdbeer-Plantage. Ist nachgewachsen.", "j-gopro": "Die GoPro. Immer noch leer.", "j-steine": "Die restlichen Steine.", "j-see": "Der See. Heute spiegelglatt.",
       "j-kroete": "Mein kleiner Freund ist noch da.", "j-skelett": "Das Hechtskelett treibt immer noch rum.", "j-astgabeln": "Mein Holzschuppen mit Strohdach. Hab ich gar nicht mehr benutzt.",
       feuer: "Der alte Steinring.", birke: "Die Birke vom alten Platz.", wurzel: "Baumi. Mein Bester. Muss leider hierbleiben.", beeren: "Blaubeeren, wie immer."
     },
-    uses: { "j-spuren": "Heute lass ich die Wildschweine in Ruhe.", "j-gopro": "Tot. Immer noch.", "j-kroete": "Lassen wir ihn in Ruhe." },
+    uses: { fels: "Heute schicke ich das OK vom neuen Lager aus. Erst mal umziehen.", "j-spuren": "Heute lass ich die Wildschweine in Ruhe.", "j-gopro": "Tot. Immer noch.", "j-kroete": "Lassen wir ihn in Ruhe." },
 
     rooms: {
       "hannes-ufer": ext(R["hannes-ufer"], {

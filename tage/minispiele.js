@@ -300,7 +300,7 @@
       for (const [k, n] of Object.entries(N)) {
         const reach = N[at].to.includes(k);
         s += `<g data-k="${k}" style="cursor:${reach ? "pointer" : "default"}"><circle cx="${n.x}" cy="${n.y}" r="${k === at ? 14 : 10}" fill="${k === at ? "#e8b044" : reach ? "#2f6fa8" : "#b5a77e"}" stroke="#3a2a14" stroke-width="2"/>
-          <text x="${n.x}" y="${n.y - 18}" text-anchor="middle" font-family="Alegreya Sans, sans-serif" font-size="14" font-weight="700" fill="${reach ? "#1f2a3a" : "#7a6a4a"}">${n.name}</text></g>`;
+          <text x="${n.x}" y="${n.y - 18}" text-anchor="${n.x > 780 ? "end" : n.x < 160 ? "start" : "middle"}" font-family="Alegreya Sans, sans-serif" font-size="14" font-weight="700" fill="${reach ? "#1f2a3a" : "#7a6a4a"}">${n.name}</text></g>`;
       }
       svg.innerHTML = s;
       for (const g of svg.querySelectorAll("[data-k]")) g.addEventListener("click", (e) => { e.stopPropagation(); go(g.dataset.k); });

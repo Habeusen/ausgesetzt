@@ -255,7 +255,7 @@ window.Ausgesetzt = (function () {
       b.setAttribute("aria-label", itemName(it));
       b.setAttribute("aria-pressed", it === selected);
       const badge = ITEMS[it] && ITEMS[it].badge ? `<span class="n">${ITEMS[it].badge(E)}</span>` : "";
-      b.innerHTML = `<svg viewBox="0 0 40 40">${ICON[it] || '<circle cx="20" cy="20" r="10" fill="#888"/>'}</svg>${badge}`;
+      b.innerHTML = `<svg viewBox="0 0 40 40">${ICON[it] || '<circle cx="20" cy="20" r="10" fill="#888"/>'}</svg><span class="nm">${itemName(it)}</span>${badge}`;
       b.addEventListener("click", (e) => {
         e.stopPropagation();
         if (selected === it) { select(null); setInv(false); lookItem(it); }
@@ -275,6 +275,9 @@ window.Ausgesetzt = (function () {
     selected = it;
     $("cursorlabel").hidden = !it;
     if (it) $("cursorlabel").textContent = itemName(it) + " + …";
+    // Gewählter Gegenstand bleibt sichtbar (am Handy gibt es keinen Mauszeiger mit Beschriftung)
+    $("selchip").hidden = !it;
+    if (it) { $("selIcon").innerHTML = ICON[it] || ""; $("selName").textContent = itemName(it); }
     renderInv();
   }
   function gained(it) {
@@ -813,6 +816,7 @@ window.Ausgesetzt = (function () {
   $("reveal").addEventListener("click", (e) => { e.stopPropagation(); setReveal(!revealAll); });
   $("tip").addEventListener("click", (e) => { e.stopPropagation(); tip(); });
   $("bookBtn").addEventListener("click", (e) => { e.stopPropagation(); openBook(); });
+  $("selX").addEventListener("click", (e) => { e.stopPropagation(); select(null); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { closeVerbs(); setInv(false); select(null); stopTalk(); closeBook(); }
     const inDialog = e.target.closest && e.target.closest(".choice, .overlay, .verbs, .mg, .book");
@@ -1102,7 +1106,7 @@ window.Ausgesetzt = (function () {
     buildRooms(); buildActors();
     for (const id of ["menu", "dayEnd", "half", "over", "book"]) $(id).hidden = true;
     $("choice").hidden = true; $("mg").hidden = true;
-    selected = null; closeVerbs(); setReveal(false);
+    selected = null; $("selchip").hidden = true; $("cursorlabel").hidden = true; closeVerbs(); setReveal(false);
     toasts.length = 0; clearTimeout(toastTimer); $("toast").hidden = true;
     for (const id of ["hud", "who", "bag", "tools", "gmini"]) $(id).hidden = false;
     setGoalPanel(false);
@@ -1136,6 +1140,7 @@ window.Ausgesetzt = (function () {
   }
   function toMenu() {
     token++; stopTalk(true); started = false;
+    selected = null; $("selchip").hidden = true; $("cursorlabel").hidden = true; setGoalPanel(false);
     // Im Menü ist Ruhe: Waldrauschen und Knistern anhalten
     if (ac) ac.suspend();
     $("lights").innerHTML = ""; lightsKey = "";
