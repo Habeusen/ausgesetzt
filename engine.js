@@ -34,6 +34,9 @@ window.Ausgesetzt = (function () {
     try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
   })());
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SAVE)); } catch (e) {} };
+  // TESTPHASE: alle Tage frei, damit man direkt in jeden Tag springen kann. Für die fertige Version diese Zeile entfernen.
+  const ALLE_FREI = true;
+  if (ALLE_FREI) SAVE.unlocked = 7;
   const addTo = (list, v) => { if (SAVE[list].includes(v)) return false; SAVE[list].push(v); save(); return true; };
 
   // ---------- Zustand ----------
