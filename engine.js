@@ -180,13 +180,13 @@ window.Ausgesetzt = (function () {
   const PEGEL = { blubbern: 0.9, knistern: 0.75, herzschlag: 1, riss: 1.3, piepen: 1.6, pups: 0.7, wind: 1.3, zischen: 0.55, grunzen: 0.85, summen: 5.5, krachen: 1.3, bellen: 2.1, knarzen: 3, plopp: 1.2, specht: 0.9, platsch: 3.2, raus: 2.6, hacken: 0.7, rascheln: 1, kratzen: 3, papier: 1.1, gluckern: 1.7, schnarchen: 2.8 };
   const audioCtx = () => ac;
   // probe: { ac, ziel } rendert unhörbar in einen anderen Kontext (nur für automatische Tests)
-  function sfx(name, vol, probe) {
+  function sfx(name, lautst, probe) {
     const ac = probe ? probe.ac : audioCtx();
     if (!probe && (!ac || SAVE.muted || !started)) return;
     if (!probe && ac.state !== "running") ac.resume().catch(() => {});
     if (!probe && !sfxBus) { sfxBus = ac.createGain(); sfxBus.gain.value = 0.6 * vol("geraeusche"); sfxBus.connect(ac.destination); }
     const now = ac.currentTime, sr = ac.sampleRate, out = ac.createGain();
-    out.gain.value = (vol == null ? 1 : vol) * (PEGEL[name] || 1); out.connect(probe ? probe.ziel : sfxBus);
+    out.gain.value = (lautst == null ? 1 : lautst) * (PEGEL[name] || 1); out.connect(probe ? probe.ziel : sfxBus);
     const rausch = (sek, form) => { const b = ac.createBuffer(1, Math.max(1, Math.floor(sr * sek)), sr), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * form(i / d.length, i / sr); const n = ac.createBufferSource(); n.buffer = b; return n; };
     const filter = (typ, f, q) => { const b = ac.createBiquadFilter(); b.type = typ; b.frequency.value = f; if (q) b.Q.value = q; return b; };
     const ton = (t0, f0, f1, len, laut, typ) => {
