@@ -245,9 +245,9 @@
             if (!has("handy")) return ["Ohne Handy brauch ich da nicht hoch."];
             // Hannes klettert sichtbar hoch, schickt das OK und kommt wieder runter
             const unten = [h.x, h.y];
-            E.place(E.active, 1440, 548, null, -1); E.time(10);
+            await E.climb(E.active, 1440, 548, 0, -1); E.time(10);
             await E.lines(sendOk("Rauf auf den Felsen … oben ein Balken!"));
-            E.place(E.active, unten[0], unten[1]);
+            await E.climb(E.active, unten[0], unten[1], 0, 1);
             return [];
           }
           return ["Das brauch ich da oben nicht."];
@@ -368,7 +368,14 @@
           return ["Damit schnitz ich nichts."];
         case "j-ueberhang":
           if (verb.look) return ["Ein Felsvorsprung. Darunter bleibt es bestimmt trocken. Und oben drauf hat man bestimmt Empfang."];
-          if (item === "handy") return sendOk("Ich kraxel auf den Felsvorsprung … ein Balken!");
+          if (item === "handy") {
+            // Jonas kraxelt sichtbar auf den Felsvorsprung und wieder runter
+            const unten = [h.x, h.y];
+            await E.climb(E.active, 1690, 606, 0, 1); E.time(10);
+            await E.lines(sendOk("Ich kraxel auf den Felsvorsprung … ein Balken!"));
+            await E.climb(E.active, unten[0], unten[1], 0, -1);
+            return [];
+          }
           if (verb.use || item) { if (has("reisig") || E.hasGoal("fire")) return ["Mehr trockenes Zeug brauche ich heute nicht."]; E.add("reisig"); return ["Kurz unterstellen … und hier liegt sautrockenes Zeug! Das gibt mir Feuergarantie."]; }
           return;
         case "j-spuren":

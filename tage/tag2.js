@@ -104,7 +104,7 @@
         walk: [[120, 720], [520, 660], [1000, 640], [1500, 660], [1900, 700], [1900, 1060], [0, 1060], [0, 760]],
         center: [900, 880], y0: 620, s0: 0.45, s1: 0.92,
         hot: {
-          "t-bank": { name: "Alte Bank", stand: [1280, 700], face: 1280, poly: "M1100,565 L1465,565 L1465,670 L1100,670 Z" },
+          "t-bank": { name: "Alte Bank", stand: [1280, 700], face: 1280, sit: [1200, 668, 1], sit2: [1400, 668, -1], poly: "M1100,565 L1465,565 L1465,670 L1100,670 Z" },
           "t-feuer": { name: "Feuerstelle", stand: [1250, 790], face: 1250, poly: "M1140,680 L1360,680 L1360,760 L1140,760 Z" },
           "t-holz": { name: "Holzstapel", stand: [430, 760], face: 300, poly: "M80,510 L390,510 L390,700 L80,700 Z" },
           "t-see": { name: "Blick auf den See", stand: [900, 680], face: 900, poly: "M640,400 L1150,400 L1150,560 L640,560 Z" },

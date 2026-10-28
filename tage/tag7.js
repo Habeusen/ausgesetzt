@@ -69,7 +69,7 @@
           <g pointer-events="none"><path d="M1010,1010 q20,-30 40,0 z" fill="#8a5a2a" stroke="#3a2614" stroke-width="2"/><rect x="1024" y="1008" width="12" height="22" fill="#e6d8b8"/></g>`,
         hot: {
           "s7-feuer": { name: "Feuerstelle", stand: [1100, 900], face: 860, poly: "M660,760 L1060,760 L1060,920 L660,920 Z" },
-          "s7-sitz": { name: "Sitzstein", stand: [1060, 800], face: 1060, poly: "M870,540 L1280,540 L1280,750 L870,750 Z" },
+          "s7-sitz": { name: "Sitzstein", stand: [1060, 800], face: 1060, sit: [945, 772, 1], sit2: [1170, 776, -1], poly: "M870,540 L1280,540 L1280,750 L870,750 Z" },
           "s7-liege": { name: "Liegestein", stand: [1400, 860], face: 1450, poly: "M1290,530 L1700,530 L1700,800 L1290,800 Z" },
           "s7-himbeeren": { name: "Himbeerbüsche", stand: [1500, 960], face: 1650, poly: "M1440,820 L1920,830 L1920,1000 L1440,1000 Z" },
           "s7-steg": { name: "Kleiner Steg", stand: [480, 800], face: 300, poly: "M120,640 L480,640 L480,780 L120,780 Z" },

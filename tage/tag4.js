@@ -69,7 +69,7 @@
         center: [900, 900], y0: 180, s0: 0.28, s1: 0.95,
         hot: {
           "a-birke": { name: "Birke mit großer Rinde", stand: [1560, 770], face: 1700, poly: "M1630,0 L1830,0 L1830,720 L1640,720 Z" },
-          "a-stein": { name: "Moosiger Felsblock", stand: [1300, 890], face: 1380, poly: "M1230,660 L1560,640 L1560,820 L1230,830 Z" },
+          "a-stein": { name: "Moosiger Felsblock", stand: [1300, 890], face: 1380, sit: [1380, 805, 1], poly: "M1230,660 L1560,640 L1560,820 L1230,830 Z" },
           "a-pfuetze": { name: "Große Pfütze", stand: [520, 960], face: 300, poly: "M160,870 L460,870 L460,1000 L160,1000 Z" },
           "a-pilze": { name: "Orange Pilze", stand: [760, 990], face: 700, poly: "M640,1000 L780,1000 L780,1060 L640,1060 Z" },
           "a-erdbeeren": { name: "Grasiger Hang", stand: [1600, 980], face: 1700, poly: "M1500,940 L1900,940 L1900,1070 L1500,1070 Z" },

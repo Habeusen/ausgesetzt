@@ -10,10 +10,12 @@ window.Ausgesetzt = (function () {
   // ---------- Register: Tage tragen hier ihre Gegenstände, Töne und Texte ein ----------
   const DAYS = {}, ITEMS = {}, ICON = {}, CLIPS = {}, NARR = {}, JOURNAL = {}, EGGS = {}, MINIGAMES = {};
   const CHARS = {
-    hannes: { name: "Hannes", strip: "tag1/hannes-walk.png", fw: 584 },
-    jonas: { name: "Jonas", strip: "tag1/jonas-walk.png", fw: 523 }
+    hannes: { name: "Hannes", strip: "tag1/hannes-walk.png", fw: 584, posen: "tag1/hannes-posen.png" },
+    jonas: { name: "Jonas", strip: "tag1/jonas-walk.png", fw: 523, posen: "tag1/jonas-posen.png" }
   };
   const FRAMES = 6, IDLE = 2, STRIDE = 70;
+  // Posen-Streifen (tools/posen.py): je Bild PW x PH, Reihenfolge wie in POSEN
+  const POSEN = ["sitzen", "klettern"], PW = 620, PH = 600;
   const WEATHER = { regen: "Regen", niesel: "Niesel", grau: "Bewölkt", sonne: "Sonne", hitze: "Hitze", gewitter: "Gewitter", nacht: "Nacht" };
 
   function day(n, def) {
@@ -184,7 +186,9 @@ window.Ausgesetzt = (function () {
       a.innerHTML = `<ellipse cx="0" cy="2" rx="95" ry="20" fill="url(#shadowGrad)"/>
         <rect class="hot" data-hot="char:${id}" x="-90" y="-470" width="180" height="470" fill="#000" fill-opacity="0"/>
         <g class="spriteWrap" pointer-events="none"><svg class="sprite" x="${-c.fw / 2}" y="-480" width="${c.fw}" height="480" viewBox="0 0 ${c.fw} 480" overflow="hidden">
-        <image href="${c.strip}" x="0" y="0" width="${c.fw * FRAMES}" height="480"/></svg></g>`;
+        <image href="${c.strip}" x="0" y="0" width="${c.fw * FRAMES}" height="480"/></svg></g>
+        <g class="poseWrap" pointer-events="none" display="none"><svg class="pose" x="${-PW / 2}" y="${-PH}" width="${PW}" height="${PH}" viewBox="0 0 ${PW} ${PH}" overflow="hidden">
+        <image href="${c.posen}" x="0" y="0" width="${PW * POSEN.length}" height="${PH}"/></svg></g>`;
       g.appendChild(a);
     }
   }
@@ -197,9 +201,19 @@ window.Ausgesetzt = (function () {
     if (!visible) return;
     const r = D.rooms[h.room], s = scaleAt(h.y, r), fw = CHARS[id].fw;
     const frame = h.target && !reduce ? Math.floor(h.phase) % FRAMES : IDLE;
-    a.setAttribute("transform", `translate(${h.x.toFixed(1)},${h.y.toFixed(1)}) scale(${s.toFixed(3)})`);
-    a.querySelector(".spriteWrap").setAttribute("transform", `scale(${h.dir},1)`);
-    a.querySelector(".sprite").setAttribute("viewBox", `${frame * fw} 0 ${fw} 480`);
+    // lift: sichtbar höher (auf einem Felsen), ohne dass sich Größe oder Reihenfolge ändern
+    a.setAttribute("transform", `translate(${h.x.toFixed(1)},${(h.y - (h.lift || 0)).toFixed(1)}) scale(${s.toFixed(3)})`);
+    const pi = POSEN.indexOf(h.pose), sw = a.querySelector(".spriteWrap"), pw = a.querySelector(".poseWrap");
+    sw.setAttribute("display", pi < 0 ? "inline" : "none");
+    pw.setAttribute("display", pi < 0 ? "none" : "inline");
+    a.querySelector("ellipse").setAttribute("display", h.lift ? "none" : "inline");
+    if (pi < 0) {
+      sw.setAttribute("transform", `scale(${h.dir},1)`);
+      a.querySelector(".sprite").setAttribute("viewBox", `${frame * fw} 0 ${fw} 480`);
+    } else {
+      pw.setAttribute("transform", `translate(0 ${(h.bob || 0).toFixed(1)}) scale(${h.dir},1)`);
+      a.querySelector(".pose").setAttribute("viewBox", `${pi * PW} 0 ${PW} ${PH}`);
+    }
   }
   function placeAll() {
     for (const id in S.chars) place(id);
@@ -493,6 +507,7 @@ window.Ausgesetzt = (function () {
     const h = who ? S.chars[who] : hero();
     if (h.resolve) h.resolve(false);
     const [cx, cy] = h === hero() ? clampWalk(x, y) : [x, y];
+    h.pose = null; h.lift = 0; h.bob = 0;
     // Nur für automatische Tests: ohne Laufen direkt ans Ziel
     if (window.__testFast) { h.x = cx; h.y = cy; h.target = null; placeAll(); return Promise.resolve(true); }
     return new Promise((res) => { h.target = { x: cx, y: cy }; h.resolve = res; });
@@ -895,6 +910,9 @@ window.Ausgesetzt = (function () {
       await enterRoom(spot.exit, t); return;
     }
     face(spot.face);
+    // Sitzplätze (sit: [x, y, Blickrichtung], zu zweit sit2 für den Partner): hinsetzen, nach dem Text wieder aufstehen
+    const sitzt = verb.use && spot.sit ? [active].concat(D.together && spot.sit2 ? others().filter((id) => !S.chars[id].away) : []) : [];
+    sitzt.forEach((id, i) => { const p = i ? spot.sit2 : spot.sit; E.sit(id, p[0], p[1], p[2]); });
     let out = D.act ? await D.act(key, verb, item, E) : undefined;
     // Begegnungen und Minispiele mitten in einer Handlung vergeben ein neues Token; die Antwort soll trotzdem kommen
     t = token;
@@ -907,6 +925,7 @@ window.Ausgesetzt = (function () {
     if (t === token) spend(verb.look ? 1 : 8);
     renderGoals(); renderInv();
     await lines(out, t);
+    for (const id of sitzt) if (S.chars[id].pose === "sitzen") E.stand(id);
     // Zu zweit freut sich der Partner über ein geschafftes Ziel
     if (t === token && S.cheer) { S.cheer = false; const o = others()[0]; if (o && !S.chars[o].away) { await pauseBetween(180); await say(tagOf(o) + pick(CHEER[o]), t); } }
     if (t === token) timedEvents();
@@ -920,9 +939,9 @@ window.Ausgesetzt = (function () {
     await new Promise((r) => setTimeout(r, reduce ? 0 : 360));
     if (t !== null && t !== token) { $("fade").classList.remove("on"); return; }
     const h = hero();
-    h.room = exit.to; h.x = exit.spawn[0]; h.y = exit.spawn[1]; h.dir = exit.dir; h.target = null;
+    h.room = exit.to; h.x = exit.spawn[0]; h.y = exit.spawn[1]; h.dir = exit.dir; h.target = null; h.pose = null; h.lift = 0;
     // Zu zweit läuft der Partner mit
-    if (D.together) for (const id of others()) { const o = S.chars[id]; o.room = exit.to; o.x = exit.spawn[0] - exit.dir * 170; o.y = exit.spawn[1] + 10; o.dir = exit.dir; o.target = null; }
+    if (D.together) for (const id of others()) { const o = S.chars[id]; o.room = exit.to; o.x = exit.spawn[0] - exit.dir * 170; o.y = exit.spawn[1] + 10; o.dir = exit.dir; o.target = null; o.pose = null; o.lift = 0; }
     showRoom();
     $("fade").classList.remove("on");
     if (D.enter) { const out = await D.enter(exit.to, E); if (out) await lines(out, t); }
@@ -1254,6 +1273,32 @@ window.Ausgesetzt = (function () {
   $("fsBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleFullscreen(); });
   $("fullscreen").addEventListener("click", toggleFullscreen);
 
+  // ---------- Klettern ----------
+  // Figur klettert in drei Zügen nach (x, y), sichtbar um lift höher. Oben steht sie wieder.
+  async function climb(id, x, y, lift, dir) {
+    const h = S.chars[id], a0 = [h.x, h.y, h.lift || 0], b = [x, y, lift || 0], ZUEGE = 3;
+    const r = h.resolve; h.target = null; h.resolve = null; if (r) r(false);
+    h.dir = dir || (Math.abs(x - h.x) > 3 ? (x > h.x ? 1 : -1) : h.dir);
+    const runter = b[1] - b[2] > a0[1] - a0[2];
+    h.lift = a0[2]; h.pose = "klettern";
+    for (let i = 1; i <= ZUEGE && !(reduce || window.__testFast); i++) {
+      // Je Zug: kurz ducken, dann ein Stück hoch (runter geht's schneller)
+      const von = [h.x, h.y, h.lift], nach = a0.map((v, j) => v + (b[j] - v) * i / ZUEGE), dauer = runter ? 260 : 380, t0 = performance.now();
+      await new Promise((res) => {
+        const step = (now) => {
+          const k = Math.min(1, (now - t0) / dauer), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          [h.x, h.y, h.lift] = von.map((v, j) => v + (nach[j] - v) * e);
+          h.bob = Math.sin(k * Math.PI) * (runter ? -6 : 10);
+          placeAll();
+          k < 1 ? requestAnimationFrame(step) : res();
+        };
+        requestAnimationFrame(step);
+      });
+      await new Promise((res) => setTimeout(res, runter ? 60 : 140));
+    }
+    [h.x, h.y, h.lift] = b; h.bob = 0; h.pose = null; placeAll();
+  }
+
   // ---------- Schnittstelle für die Tagesdateien ----------
   const E = {
     get h() { return hero(); },
@@ -1281,8 +1326,12 @@ window.Ausgesetzt = (function () {
     walk: (x, y, who) => walkTo(x, y, who),
     face,
     async goRoom(to, x, y, dir) { await enterRoom({ to, spawn: [x, y], dir: dir || 1 }, null); },
-    place(id, x, y, roomId, dir) { const h = S.chars[id]; h.x = x; h.y = y; if (roomId) h.room = roomId; if (dir) h.dir = dir; h.target = null; showRoom(); },
+    place(id, x, y, roomId, dir) { const h = S.chars[id]; h.x = x; h.y = y; h.pose = null; h.lift = 0; h.bob = 0; if (roomId) h.room = roomId; if (dir) h.dir = dir; h.target = null; showRoom(); },
     hideActor(id, on) { S.chars[id].hiddenActor = on; placeAll(); },
+    // Hinsetzen: Hüfte auf (x, Sitzhöhe), Füße am Boden bei y. Aufstehen mit E.stand.
+    sit(id, x, y, dir) { const h = S.chars[id], r = h.resolve; h.target = null; h.resolve = null; if (r) r(false); h.x = x; h.y = y; if (dir) h.dir = dir; h.pose = "sitzen"; h.lift = 0; h.bob = 0; placeAll(); },
+    stand(id) { const h = S.chars[id]; h.pose = null; h.lift = 0; h.bob = 0; placeAll(); },
+    climb,
     // Eine Figur taucht auf (vorher "away": kein Bild, keine Wahl oben links)
     arrive(id) { S.chars[id].away = false; show(active); },
     // Nach der Nacht wieder aufwachen und weiterspielen (für das Finale am letzten Morgen)
