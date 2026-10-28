@@ -38,6 +38,9 @@
   color-scheme: dark;
 }
 [hidden] { display: none !important; }
+/* Keine blauen Markierungen beim Antippen (Android) und keine Fokusrahmen um Klickflächen in der Szene */
+* { -webkit-tap-highlight-color: transparent; }
+svg .hot, svg .hot:focus, svg:focus, .stage svg *:focus { outline: none; }
 html, body { background: var(--bg); color: var(--fg); }
 body { font-family: var(--body); font-size: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 32px; }
 .wrap { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
@@ -183,16 +186,35 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 .days button:not(:disabled):hover, .days button:not(:disabled):focus-visible { transform: translateY(-2px); }
 .days button:disabled { filter: grayscale(1); }
 .days button i { position: absolute; right: 6px; top: 5px; font-style: normal; font-size: 12px; font-weight: 700; color: var(--bg); background: var(--accent); border-radius: 999px; padding: 1px 7px; }
+/* Menü und Tageskarten richten sich nach der Höhe der Spielfläche (Handy quer, Hochformat, Vollbild) */
+.stage { container-type: size; container-name: stage; }
+.overlay > div { box-sizing: border-box; width: 100%; max-width: min(760px, 100%); }
+.days { grid-template-columns: repeat(auto-fit, minmax(min(100%, clamp(96px, 15vw, 150px)), 1fr)); max-width: 100%; }
+@container stage (max-height: 540px) {
+  .overlay > div { gap: 6px; padding: 8px; }
+  .overlay h2 { font-size: clamp(20px, 10cqh, 44px); }
+  .overlay h3 { font-size: clamp(12px, 3.6cqh, 16px); }
+  .overlay p { font-size: clamp(11px, 3.4cqh, 15px); }
+  .overlay .big { padding: 6px 16px; font-size: clamp(13px, 4cqh, 18px); }
+  #menu h3, #menu > div > p { display: none; }
+  .days { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: min(100%, 680px); }
+  .days button { min-height: clamp(36px, 15cqh, 76px); padding: 4px 8px; min-width: 0; }
+  .days button span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .days button b { font-size: clamp(12px, 4.6cqh, 18px); }
+  .days button span { font-size: clamp(9px, 2.8cqh, 12px); }
+  .row { font-size: 12px; gap: 4px 12px; }
+}
+@container stage (max-height: 320px) {
+  .row label, .days button span, .overlay h3 { display: none; }
+  .days button { min-height: 28px; }
+}
 /* Kino-Rand und Wetterstimmung in der Szene */
 .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse 75% 70% at 50% 48%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.38)); }
 #atmo .rays, #atmo .fog { opacity: 0; transition: opacity 2.5s; }
 #atmo .rays { mix-blend-mode: screen; }
-#atmo.w-sonne .rays { opacity: 0.6; } #atmo.w-hitze .rays { opacity: 0.85; }
+#atmo.w-sonne .rays { opacity: 0.55; } #atmo.w-hitze .rays { opacity: 0.75; }
 #atmo.w-regen .fog, #atmo.w-niesel .fog { opacity: 0.32; } #atmo.w-grau .fog { opacity: 0.2; } #atmo.morgen .fog { opacity: 0.5; }
 #atmo.night .rays { opacity: 0; } #atmo.night .fog { opacity: 0.12; }
-.ray { animation: ray 9s ease-in-out infinite alternate; }
-.r2 { animation-duration: 13s; animation-delay: -4s; } .r3 { animation-duration: 11s; animation-delay: -7s; }
-@keyframes ray { 0% { opacity: 0.35; } 100% { opacity: 1; } }
 .fogband { animation: fog 60s linear infinite alternate; }
 .f2 { animation-duration: 85s; animation-direction: alternate-reverse; }
 @keyframes fog { from { transform: translateX(-180px); } to { transform: translateX(180px); } }
@@ -373,7 +395,7 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
       </defs>
       <g id="rooms"></g>
       <g id="atmo" pointer-events="none">
-        <g class="rays"><path class="ray r1" d="M-200,-80 L160,-80 L900,1080 L520,1080 Z" fill="url(#rayGrad)"/><path class="ray r2" d="M60,-80 L260,-80 L1250,1080 L1020,1080 Z" fill="url(#rayGrad)"/><path class="ray r3" d="M300,-80 L420,-80 L1600,1080 L1440,1080 Z" fill="url(#rayGrad)"/></g>
+        <filter id="rayBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="34"/></filter><g class="rays" filter="url(#rayBlur)"><path class="ray r1" d="M-200,-80 L160,-80 L900,1080 L520,1080 Z" fill="url(#rayGrad)"/><path class="ray r2" d="M60,-80 L260,-80 L1250,1080 L1020,1080 Z" fill="url(#rayGrad)"/><path class="ray r3" d="M300,-80 L420,-80 L1600,1080 L1440,1080 Z" fill="url(#rayGrad)"/></g>
         <g class="fog"><rect class="fogband f1" x="-600" y="470" width="3200" height="230" fill="url(#fogGrad)"/><rect class="fogband f2" x="-900" y="560" width="3400" height="180" fill="url(#fogGrad)"/></g>
       </g>
       <g id="actors"></g>

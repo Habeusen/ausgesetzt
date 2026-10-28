@@ -94,6 +94,8 @@
         hot: {
           beeren: { name: "Blaubeeren", stand: [440, 742], face: 300, poly: "M206,600 L470,604 L590,690 L560,756 L236,764 Z" },
           birke: { name: "Birke", stand: [1040, 650], face: 1060, poly: "M1024,130 L1094,130 L1094,548 L1024,548 Z" },
+          // Oben auf dem Granitfelsen gibt es einen Balken Empfang (der Steinring darauf hat seinen eigenen Punkt)
+          fels: { name: "Großer Felsen", stand: [1500, 735], face: 1400, dot: [1340, 525], poly: "M1080,585 L1180,512 L1400,482 L1560,500 L1570,575 L1430,592 L1146,594 Z" },
           feuer: { name: "Steinring", stand: [1190, 676], face: 1290, poly: "M1146,596 L1426,596 L1426,672 L1146,672 Z" },
           wurzel: { name: (E) => (E.flags.baumi ? "Baumi" : "Wurzelteller"), stand: [1520, 760], face: 1700, poly: "M1556,420 L1720,336 L1900,420 L1920,700 L1712,724 L1606,560 Z" },
           "exit-ufer": { name: "Zum Ufer", stand: [250, 820], face: 0, poly: "M0,560 L210,560 L240,1080 L0,1080 Z", exit: { to: "hannes-ufer", spawn: [1820, 820], dir: -1 } }
@@ -151,8 +153,8 @@
         where: "Jonas' Felsufer", bg: "tag1/see-jonas.jpg",
         walk: [[450, 800], [560, 760], [640, 680], [760, 650], [900, 700], [1300, 700], [1600, 790], [1900, 790], [1900, 1060], [300, 1060], [300, 880]],
         center: [1000, 900], y0: 640, s0: 0.5, s1: 0.95,
-        overlays: `<g id="j-steine" opacity="0" pointer-events="none"><ellipse cx="1210" cy="664" rx="120" ry="22" fill="#000" opacity="0.35" filter="url(#soft)"/><g fill="#3b3833" stroke="#14120f" stroke-width="3"><ellipse cx="1140" cy="650" rx="34" ry="16"/><ellipse cx="1210" cy="660" rx="40" ry="18"/><ellipse cx="1282" cy="648" rx="34" ry="16"/><ellipse cx="1176" cy="636" rx="26" ry="12"/><ellipse cx="1246" cy="636" rx="28" ry="12"/></g></g>
-          <g id="j-holzshelter" opacity="0" pointer-events="none"><ellipse cx="1460" cy="822" rx="150" ry="20" fill="#000" opacity="0.4" filter="url(#soft)"/><path d="M1350,800 L1440,668 M1380,812 L1462,676 M1410,820 L1490,688 M1440,824 L1520,700 M1470,826 L1548,708 M1500,826 L1578,716" stroke="#2e231a" stroke-width="7" stroke-linecap="round"/><path d="M1340,790 q60,-120 100,-130 q90,20 170,48 q-60,40 -130,90 z" fill="#1f2a17" opacity="0.85"/><path d="M1330,820 L1420,660 L1510,820" stroke="#2a1f16" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M1420,660 L1600,700" stroke="#2a1f16" stroke-width="10" stroke-linecap="round"/></g>
+        overlays: `<g id="j-steine" opacity="0" pointer-events="none"><radialGradient id="nassStein" cx="0.4" cy="0.3"><stop offset="0" stop-color="#74706a"/><stop offset="0.55" stop-color="#3e3b36"/><stop offset="1" stop-color="#1c1a17"/></radialGradient><g filter="url(#gradeJonas)"><ellipse cx="1212" cy="668" rx="130" ry="20" fill="url(#shadowGrad)"/><g stroke="#14120f" stroke-width="1.6" stroke-linejoin="round"><path d="M1104,652 q4,-18 30,-20 q30,-2 40,14 q4,14 -18,20 q-40,6 -52,-14 z" fill="url(#nassStein)"/><path d="M1170,664 q2,-24 40,-26 q40,0 46,20 q2,16 -30,20 q-48,4 -56,-14 z" fill="url(#nassStein)"/><path d="M1250,650 q8,-18 34,-18 q28,2 30,18 q-2,14 -30,16 q-30,0 -34,-16 z" fill="url(#nassStein)"/><path d="M1150,632 q6,-14 28,-14 q22,2 24,14 q-4,10 -26,10 q-22,0 -26,-10 z" fill="url(#nassStein)"/><path d="M1222,628 q6,-14 30,-12 q24,2 22,14 q-4,10 -26,10 q-24,0 -26,-12 z" fill="url(#nassStein)"/></g><g fill="none" stroke="#e8eef2" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"><path d="M1120,642 q14,-8 30,-6"/><path d="M1190,650 q16,-8 36,-6"/><path d="M1264,640 q12,-6 26,-4"/><path d="M1164,626 q10,-5 20,-4"/></g></g></g>
+          <g id="j-holzshelter" opacity="0" pointer-events="none"><pattern id="stroh" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-58)"><rect width="14" height="14" fill="#7d6a3e"/><path d="M0,3 h14" stroke="#b39a5e" stroke-width="2"/><path d="M0,8 h14" stroke="#5a4826" stroke-width="1.6"/><path d="M0,12 h14" stroke="#9c8650" stroke-width="1.4"/></pattern><linearGradient id="strohSchatten" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.45"/></linearGradient><ellipse cx="1465" cy="828" rx="175" ry="24" fill="url(#shadowGrad)"/><g filter="url(#gradeJonas)" opacity="0.92"><path d="M1336,820 L1420,664 L1506,820 Z" fill="#120d08"/><g stroke="#1a120a" stroke-width="2"><rect x="1360" y="788" width="120" height="16" rx="8" fill="#5e4026"/><rect x="1372" y="770" width="104" height="15" rx="7" fill="#6a4a2c"/><rect x="1388" y="753" width="80" height="14" rx="7" fill="#5e4026"/></g><g fill="#c49a64" stroke="#3a2614" stroke-width="1.5"><ellipse cx="1474" cy="796" rx="6" ry="8"/><ellipse cx="1470" cy="777" rx="6" ry="7.5"/><ellipse cx="1462" cy="760" rx="5.5" ry="7"/></g><path d="M1418,662 L1604,704 Q1580,760 1530,830 L1506,822 Z" fill="url(#stroh)" stroke="#2a1f12" stroke-width="3" stroke-linejoin="round"/><path d="M1418,662 L1604,704 Q1580,760 1530,830 L1506,822 Z" fill="url(#strohSchatten)"/><path d="M1424,672 L1600,712 M1446,712 L1590,744 M1468,752 L1572,780" stroke="#c9b070" stroke-opacity="0.35" stroke-width="3" fill="none"/><path d="M1330,824 L1420,660 L1512,824" stroke="#2a1f16" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M1330,824 L1420,660 L1512,824" stroke="#6a4e30" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M1408,654 L1612,702" stroke="#2a1f16" stroke-width="10" stroke-linecap="round"/><path d="M1408,654 L1612,702" stroke="#6a4e30" stroke-width="4" stroke-linecap="round"/><path d="M1500,812 q16,-6 30,8 M1590,716 q14,4 18,16 M1440,668 q-10,-12 -4,-22" stroke="#a88e54" stroke-width="2" fill="none" stroke-linecap="round"/></g></g>
           <g id="j-fire" opacity="0" pointer-events="none"><circle cx="1210" cy="600" r="300" fill="url(#glow)"/><use href="#flames" transform="translate(1210 646) scale(1.6)"/></g>
           <g id="j-skelett" pointer-events="none"><path d="M330,742 q60,-18 120,0" stroke="#d8d2c0" stroke-width="5" fill="none"/><path d="M350,742 l-8,-12 M366,738 l-6,-14 M382,736 l-4,-15 M398,736 l0,-15 M414,738 l4,-14 M430,740 l6,-12" stroke="#d8d2c0" stroke-width="3"/><path d="M450,742 l22,-10 l0,20 z" fill="none" stroke="#d8d2c0" stroke-width="3"/><circle cx="326" cy="742" r="8" fill="none" stroke="#d8d2c0" stroke-width="3"/></g>
           <g id="j-kroete" pointer-events="none"><ellipse cx="880" cy="934" rx="26" ry="16" fill="#6a5a34" stroke="#2a2010" stroke-width="2"/><circle cx="866" cy="922" r="6" fill="#7a6a40" stroke="#2a2010" stroke-width="2"/><circle cx="866" cy="921" r="2.4" fill="#111"/><circle cx="890" cy="926" r="3" fill="#4a3e22"/><circle cx="878" cy="940" r="2.5" fill="#4a3e22"/></g>`,
@@ -237,6 +239,18 @@
             E.add("beeren"); return ["Die nehme ich mit. Frisch vom Strauch."];
           }
           return ["Die Beeren brauchen keine Hilfe."];
+        case "fels":
+          if (verb.look) return ["Ein großer Granitfelsen. Von da oben hat man bestimmt Empfang."];
+          if (verb.use || item === "handy") {
+            if (!has("handy")) return ["Ohne Handy brauch ich da nicht hoch."];
+            // Hannes klettert sichtbar hoch, schickt das OK und kommt wieder runter
+            const unten = [h.x, h.y];
+            E.place(E.active, 1440, 548, null, -1); E.time(10);
+            await E.lines(sendOk("Rauf auf den Felsen … oben ein Balken!"));
+            E.place(E.active, unten[0], unten[1]);
+            return [];
+          }
+          return ["Das brauch ich da oben nicht."];
         case "birke":
           if (verb.look) return ["Eine Birke. Die äußere Rinde brennt sogar, wenn sie nass ist."];
           if (verb.use) return ["Mit den Fingern krieg ich die Rinde nicht ab. Ich brauche eine Klinge."];
@@ -475,7 +489,7 @@
           if (!has("rinde")) return "Kienspan allein reicht nicht. Birkenrinde brennt auch nass, mit dem Messer an die Birke.";
           return "Kienspan und Rinde hab ich. Jetzt den Feuerstahl am Steinring benutzen.";
         }
-        if (!E.hasGoal("ok")) return "Unten im Wald kein Empfang. Aber der Steinring liegt auf einem Felsen …";
+        if (!E.hasGoal("ok")) return "Unten im Wald kein Empfang. Auf den großen Felsen klettern und das OK schicken.";
         if (h.fourth < 40) return "Ich brauch was für die Laune. Socken am Feuer trocknen? Kiefernnadeltee?";
         return "Alles erledigt. Schlafsack unters Tarp.";
       }

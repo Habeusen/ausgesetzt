@@ -50,13 +50,26 @@ window.Ausgesetzt = (function () {
   // Umgebungston: alles im Browser erzeugt, in Schichten (Wind, Wellen, Regen, Vögel, Grillen, Mücken, Feuer).
   // Welche Schicht wie laut ist, hängt von Raum, Uhrzeit und Wetter ab (updateAmbience).
   let ac = null, ambGain = null, amb = null;
-  const AMB = 1, AMB_DUCK = 0.35;
+  // Umgebung leise im Hintergrund, beim Sprechen fast weg; Stimmen laufen über einen eigenen Verstärker (voiceBus)
+  const AMB = 0.5, AMB_DUCK = 0.12;
+  let voiceBus = null;
+  // Originaltöne aus den Videos sind leise und schwanken: anheben und mit einem Kompressor glätten
+  function routeVoice(a) {
+    if (!ac || !voiceBus) return;
+    if (ac.state !== "running" && started) ac.resume().catch(() => {});
+    if (a._routed) return;
+    try { ac.createMediaElementSource(a).connect(voiceBus); a._routed = true; } catch (e) {}
+  }
   function initAmbience() {
     if (ac) return;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     ac = new AC();
     ambGain = ac.createGain(); ambGain.gain.value = SAVE.muted ? 0 : AMB; ambGain.connect(ac.destination);
+    const comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -26; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
+    voiceBus = ac.createGain(); voiceBus.gain.value = 1.9;
+    voiceBus.connect(comp).connect(ac.destination);
     const noise = (brown) => {
       const b = ac.createBuffer(1, ac.sampleRate * 4, ac.sampleRate), d = b.getChannelData(0);
       let v = 0;
@@ -135,7 +148,7 @@ window.Ausgesetzt = (function () {
     set(amb.birds, !night && rainy < 1 ? 0.035 * (1 - rainy) : 0);
     set(amb.crickets, night && !rainy ? 0.01 : 0); set(amb.crickets2, night && !rainy ? 0.008 : 0);
     set(amb.mosquito, (/sumpf/.test(h.room) || (S.day <= 3 && /jonas-wald/.test(h.room) && c > 17 * 60)) ? 0.007 : 0);
-    set(amb.fire, S.fires.has(h.room) ? 0.3 : 0);
+    set(amb.fire, S.fires.has(h.room) ? 0.18 : 0);
   }
   function thunder() {
     if (!ac || SAVE.muted) return;
@@ -588,6 +601,7 @@ window.Ausgesetzt = (function () {
       const fallback = () => { if (subDone !== res) return; clearTimeout(subTimer); subTimer = setTimeout(stopTalk, 1400 + p.text.length * 55); };
       if (p.file && !SAVE.muted) {
         const a = sound(p.file);
+        routeVoice(a);
         stopLinger(); // Der neue Satz löst den alten Ton ab
         playing = a;
         try { a.currentTime = 0; } catch (e) {}
@@ -932,6 +946,7 @@ window.Ausgesetzt = (function () {
       stopBookClip();
       // Eigenes Audio-Objekt, damit es nicht mit derselben Zeile im Spiel kollidiert
       bookClip = new Audio(CLIPS[b.dataset.play].file.replace(/\.wav$/, ".mp3"));
+      routeVoice(bookClip);
       if (!SAVE.muted) bookClip.play().catch(() => {});
     });
   }
@@ -1172,6 +1187,8 @@ window.Ausgesetzt = (function () {
     if (SAVE.muted && playing) { playing.pause(); playing = null; clearTimeout(subTimer); subTimer = setTimeout(stopTalk, 1800); }
     if (SAVE.muted) stopLinger();
   }
+  // Zurück aus dem Hintergrund (Handy): Ton wieder einschalten, sonst bleiben die Stimmen stumm
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && ac && started && ac.state !== "running") ac.resume().catch(() => {}); });
   $("mute").addEventListener("click", toggleMute);
   $("muteBtn").addEventListener("click", toggleMute);
 

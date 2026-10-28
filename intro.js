@@ -129,7 +129,8 @@ window.AusgesetztIntro = (function () {
     const speaking = LINES.some((l) => t >= l.t0 && t < l.t0 + l.dur);
     if (running) for (const h of HITS) if (prevT < h.t && t >= h.t) hit(h.v);
     prevT = t;
-    level(musicGain, running ? (t < 50500 ? 1 : t > DAY0 - 300 ? 1.2 : 0.55) * (speaking ? 0.55 : 1) * 0.32 : 0);
+    // Musik deutlich unter den Stimmen
+    level(musicGain, running ? (t < 50500 ? 1 : t > DAY0 - 300 ? 1.2 : 0.55) * (speaking ? 0.3 : 1) * 0.22 : 0);
     level(rainGain, running ? rainLevel * 0.09 : 0);
     level(motorGain, running ? motorLevel * 0.35 : 0);
   }
