@@ -15,7 +15,7 @@ window.Ausgesetzt = (function () {
   };
   const FRAMES = 6, IDLE = 2, STRIDE = 70;
   // Posen-Streifen (tools/posen.py): je Bild PW x PH, Reihenfolge wie in POSEN
-  const POSEN = ["sitzen", "klettern"], PW = 620, PH = 600;
+  const POSEN = ["sitzen", "klettern", "knien"], PW = 620, PH = 600;
   const WEATHER = { regen: "Regen", niesel: "Niesel", grau: "Bewölkt", sonne: "Sonne", hitze: "Hitze", gewitter: "Gewitter", nacht: "Nacht" };
 
   function day(n, def) {
@@ -913,19 +913,23 @@ window.Ausgesetzt = (function () {
     // Sitzplätze (sit: [x, y, Blickrichtung], zu zweit sit2 für den Partner): hinsetzen, nach dem Text wieder aufstehen
     const sitzt = verb.use && spot.sit ? [active].concat(D.together && spot.sit2 ? others().filter((id) => !S.chars[id].away) : []) : [];
     sitzt.forEach((id, i) => { const p = i ? spot.sit2 : spot.sit; E.sit(id, p[0], p[1], p[2]); });
-    let out = D.act ? await D.act(key, verb, item, E) : undefined;
+    let out = D.act ? await D.act(key, verb, item, E) : undefined, ohneWirkung = null;
     // Begegnungen und Minispiele mitten in einer Handlung vergeben ein neues Token; die Antwort soll trotzdem kommen
     t = token;
     if (out === undefined) {
       const L = D.looks && D.looks[key], U = D.uses && D.uses[key];
       if (verb.look) out = [].concat(L || (typeof spot.look === "function" ? spot.look(E) : spot.look) || "Nichts Besonderes.");
-      else if (verb.use) out = [].concat(U || (typeof spot.use === "function" ? spot.use(E) : spot.use) || "Da kann ich nichts machen.");
-      else out = [item === "handy" && D.noSignal ? D.noSignal : "Das bringt hier nichts."];
+      else if (verb.use) out = [].concat(U || (typeof spot.use === "function" ? spot.use(E) : spot.use) || (ohneWirkung = "Da kann ich nichts machen."));
+      else out = [item === "handy" && D.noSignal ? D.noSignal : (ohneWirkung = "Das bringt hier nichts.")];
     }
+    // Stellen am Boden (kneel): zum Benutzen hinknien, z. B. Wasser schöpfen, Beeren pflücken, Feuer machen
+    const kniet = !verb.look && spot.kneel && !sitzt.length && !ohneWirkung && t === token;
+    if (kniet) { h.pose = "knien"; place(active); }
     if (t === token) spend(verb.look ? 1 : 8);
     renderGoals(); renderInv();
     await lines(out, t);
     for (const id of sitzt) if (S.chars[id].pose === "sitzen") E.stand(id);
+    if (kniet && h.pose === "knien") E.stand(active);
     // Zu zweit freut sich der Partner über ein geschafftes Ziel
     if (t === token && S.cheer) { S.cheer = false; const o = others()[0]; if (o && !S.chars[o].away) { await pauseBetween(180); await say(tagOf(o) + pick(CHEER[o]), t); } }
     if (t === token) timedEvents();

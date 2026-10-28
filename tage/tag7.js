@@ -68,14 +68,14 @@
           <g id="s7-leinebild" opacity="0" pointer-events="none"><linearGradient id="shirt7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a5a74"/><stop offset="1" stop-color="#1e2634"/></linearGradient><linearGradient id="slip7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a4a44"/><stop offset="1" stop-color="#3e1e1a"/></linearGradient><path d="M60,520 Q300,560 600,500" stroke="#1c1e20" stroke-width="5" fill="none"/><path d="M60,520 Q300,560 600,500" stroke="#7a7e70" stroke-width="2" fill="none"/><path d="M178,538 L206,534 L226,538 L246,552 L238,566 L228,560 L228,606 L184,606 L184,560 L172,566 L164,552 Z" fill="url(#shirt7)" stroke="#12161e" stroke-width="2" stroke-linejoin="round"/><circle cx="206" cy="574" r="7" fill="none" stroke="#d8d0b0" stroke-width="2" opacity="0.7"/><path d="M196,590 q10,4 20,0" stroke="#12161e" stroke-width="1.6" fill="none" opacity="0.6"/><path d="M346,546 L386,544 L384,560 Q372,566 366,580 Q358,566 348,562 Z" fill="url(#slip7)" stroke="#1e0e0c" stroke-width="2" stroke-linejoin="round"/><g fill="#2a2620"><rect x="186" y="533" width="4" height="9"/><rect x="220" y="535" width="4" height="9"/><rect x="352" y="541" width="4" height="9"/><rect x="376" y="540" width="4" height="9"/></g></g>
           <g pointer-events="none"><path d="M1010,1010 q20,-30 40,0 z" fill="#8a5a2a" stroke="#3a2614" stroke-width="2"/><rect x="1024" y="1008" width="12" height="22" fill="#e6d8b8"/></g>`,
         hot: {
-          "s7-feuer": { name: "Feuerstelle", stand: [1100, 900], face: 860, poly: "M660,760 L1060,760 L1060,920 L660,920 Z" },
+          "s7-feuer": { name: "Feuerstelle", kneel: true, stand: [1100, 900], face: 860, poly: "M660,760 L1060,760 L1060,920 L660,920 Z" },
           "s7-sitz": { name: "Sitzstein", stand: [1060, 800], face: 1060, sit: [945, 772, 1], sit2: [1170, 776, -1], poly: "M870,540 L1280,540 L1280,750 L870,750 Z" },
           "s7-liege": { name: "Liegestein", stand: [1400, 860], face: 1450, poly: "M1290,530 L1700,530 L1700,800 L1290,800 Z" },
           "s7-himbeeren": { name: "Himbeerbüsche", stand: [1500, 960], face: 1650, poly: "M1440,820 L1920,830 L1920,1000 L1440,1000 Z" },
           "s7-steg": { name: "Kleiner Steg", stand: [480, 800], face: 300, poly: "M120,640 L480,640 L480,780 L120,780 Z" },
           "s7-baum": { name: "Umgestürzter Baum am Wasser", stand: [600, 780], face: 500, poly: "M60,480 L900,480 L900,620 L60,620 Z" },
           "s7-schilf": { name: "Schilf", stand: [200, 840], face: 60, poly: "M0,560 L110,560 L110,780 L0,780 Z" },
-          "s7-pilz": { name: "Pilz", stand: [1100, 990], face: 1030, poly: "M995,975 L1065,975 L1065,1035 L995,1035 Z" }
+          "s7-pilz": { name: "Pilz", kneel: true, stand: [1100, 990], face: 1030, poly: "M995,975 L1065,975 L1065,1035 L995,1035 Z" }
         }
       },
       "rotes-haus": {

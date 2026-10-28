@@ -64,7 +64,7 @@
         hot: {
           "s-kies": { name: "Schotterberge", stand: [700, 800], face: 500, poly: "M0,440 L800,440 L1400,700 L0,820 Z" },
           "s-schild": { name: "Altes Schild", stand: [1640, 700], face: 1720, poly: "M1680,600 L1770,600 L1770,840 L1680,840 Z" },
-          "s-beeren": { name: "Heidelbeeren am Hang", stand: [1500, 980], face: 1700, poly: "M1520,900 L1900,900 L1900,1060 L1520,1060 Z" },
+          "s-beeren": { name: "Heidelbeeren am Hang", kneel: true, stand: [1500, 980], face: 1700, poly: "M1520,900 L1900,900 L1900,1060 L1520,1060 Z" },
           "s-kot": { name: "Haufen am Wegrand", stand: [520, 980], face: 420, poly: "M340,960 L480,960 L480,1030 L340,1030 Z" },
           "exit-karte": { name: "Querfeldein, Richtung See", stand: [80, 900], face: 0, poly: "M0,800 L90,800 L90,1080 L0,1080 Z",
             exit: { to: "sumpf", spawn: [1700, 940], dir: -1, need: (E) => (E.hasGoal("karte") ? null : ["Erst die Karte checken. Wo geht's lang?"]) } }
@@ -77,8 +77,8 @@
         center: [900, 900], y0: 720, s0: 0.55, s1: 0.95,
         hot: {
           "su-stamm": { name: "Umgestürzter Baum über dem Wasser", stand: [520, 780], face: 600, poly: "M380,560 L1440,540 L1440,610 L380,610 Z" },
-          "su-wasser": { name: "Sumpfiges Ufer", stand: [900, 790], face: 900, poly: "M380,480 L1440,480 L1440,540 L380,560 Z M380,612 L1280,612 L1280,720 L380,720 Z" },
-          "su-bach": { name: "Kleiner Fluss", stand: [1400, 800], face: 1450, poly: "M1300,640 L1600,640 L1600,760 L1300,760 Z" },
+          "su-wasser": { name: "Sumpfiges Ufer", kneel: true, stand: [900, 790], face: 900, poly: "M380,480 L1440,480 L1440,540 L380,560 Z M380,612 L1280,612 L1280,720 L380,720 Z" },
+          "su-bach": { name: "Kleiner Fluss", kneel: true, stand: [1400, 800], face: 1450, poly: "M1300,640 L1600,640 L1600,760 L1300,760 Z" },
           "su-gras": { name: "Hohes Gras", stand: [800, 960], face: 800, poly: "M600,900 L1000,900 L1000,1000 L600,1000 Z" },
           "exit-fluss": { name: "Am Fluss entlang", stand: [1840, 940], face: 1920, poly: "M1830,760 L1920,760 L1920,1080 L1830,1080 Z",
             exit: { to: "grosser-see", spawn: [1700, 960], dir: -1, need: (E) => (!E.hasGoal("stamm") ? ["Erst über den Baumstamm. Da drüben geht's weiter."] : !E.hasGoal("wasser") ? ["Wasser tanken, bevor wir weitergehen. Am Fluss mit dem Filter."] : null) } }
@@ -93,9 +93,9 @@
           <g id="g-fire" opacity="0" pointer-events="none"><circle cx="600" cy="860" r="240" fill="url(#glow)"/><use href="#flames" transform="translate(600 890) scale(1.2)"/></g>`,
         hot: {
           "g-baeume": { name: "Kiefern mit tiefen Ästen", stand: [460, 800], face: 220, poly: "M60,0 L380,0 L380,760 L60,760 Z" },
-          "g-feuer": { name: "Alte Feuerstelle", stand: [820, 900], face: 600, poly: "M380,820 L820,820 L820,950 L380,950 Z" },
-          "g-see": { name: "Großer See", stand: [1100, 760], face: 1100, poly: "M300,470 L1920,470 L1920,700 L300,720 Z" },
-          "g-strand": { name: "Steinstrand", stand: [1300, 860], face: 1400, poly: "M800,730 L1920,760 L1920,900 L800,880 Z" }
+          "g-feuer": { name: "Alte Feuerstelle", kneel: true, stand: [820, 900], face: 600, poly: "M380,820 L820,820 L820,950 L380,950 Z" },
+          "g-see": { name: "Großer See", kneel: true, stand: [1100, 760], face: 1100, poly: "M300,470 L1920,470 L1920,700 L300,720 Z" },
+          "g-strand": { name: "Steinstrand", kneel: true, stand: [1300, 860], face: 1400, poly: "M800,730 L1920,760 L1920,900 L800,880 Z" }
         }
       }
     },

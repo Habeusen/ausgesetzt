@@ -62,7 +62,7 @@
           "b-bruecke": { name: "Lange Brücke", stand: [820, 650], face: 1300, poly: "M760,600 L1660,460 L1660,500 L1280,640 L760,660 Z",
             exit: { to: "steg6", spawn: [1700, 960], dir: -1, need: (E) => (E.flags.bruecke ? null : ["Hab ich erwähnt, dass ich ein bisschen Höhenangst hab? Erst mal klären, wie wir da rübergehen."]) } },
           "b-schilf": { name: "Schilf am Ufer", stand: [500, 720], face: 300, poly: "M0,480 L760,480 L760,640 L0,690 Z" },
-          "b-nessel": { name: "Brennnesseln", stand: [1000, 960], face: 1200, poly: "M1100,860 L1500,860 L1500,1060 L1100,1060 Z" },
+          "b-nessel": { name: "Brennnesseln", kneel: true, stand: [1000, 960], face: 1200, poly: "M1100,860 L1500,860 L1500,1060 L1100,1060 Z" },
           "b-birke": { name: "Birke mit Schatten", stand: [1000, 760], face: 1800, poly: "M1800,0 L1920,0 L1920,640 L1800,640 Z" },
           "b-stein": { name: "Großer Stein", stand: [1080, 880], face: 1750, poly: "M1700,720 L1900,720 L1900,840 L1700,840 Z" }
         }
@@ -77,8 +77,8 @@
           "st-baeume": { name: "Zwei Kiefern", stand: [520, 800], face: 330, poly: "M180,0 L480,0 L480,690 L180,690 Z" },
           "st-schild": { name: "Altes Schild", stand: [740, 800], face: 560, poly: "M420,640 L700,680 L690,780 L420,760 Z" },
           "st-steg": { name: "Steg", stand: [1240, 730], face: 1400, poly: "M1000,640 L1460,500 L1480,540 L1240,760 L1000,740 Z" },
-          "st-see": { name: "See", stand: [1050, 720], face: 1200, poly: "M700,320 L1920,320 L1920,700 L1500,700 L1000,620 L700,620 Z" },
-          "st-feuer": { name: "Platz für ein Feuer", stand: [880, 900], face: 800, poly: "M720,760 L900,760 L900,860 L720,860 Z" }
+          "st-see": { name: "See", kneel: true, stand: [1050, 720], face: 1200, poly: "M700,320 L1920,320 L1920,700 L1500,700 L1000,620 L700,620 Z" },
+          "st-feuer": { name: "Platz für ein Feuer", kneel: true, stand: [880, 900], face: 800, poly: "M720,760 L900,760 L900,860 L720,860 Z" }
         }
       }
     },

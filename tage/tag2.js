@@ -86,15 +86,15 @@
           <g id="h2-fire" opacity="0" pointer-events="none"><circle cx="520" cy="620" r="220" fill="url(#glow)"/><use href="#flames" transform="translate(520 650) scale(1.1)"/></g>
           <g id="h2-ameisen" pointer-events="none"><path d="M240,960 q60,-70 120,0 z" fill="#6a5034" stroke="#2a1f12" stroke-width="2"/><g fill="#1a120a"><circle cx="270" cy="950" r="2"/><circle cx="300" cy="935" r="2"/><circle cx="325" cy="952" r="2"/><circle cx="290" cy="958" r="2"/></g></g>`,
         hot: {
-          "h2-see": { name: "See", stand: [300, 760], face: 100, poly: "M0,470 L500,470 L330,560 L180,620 L170,720 L0,800 Z" },
+          "h2-see": { name: "See", kneel: true, stand: [300, 760], face: 100, poly: "M0,470 L500,470 L330,560 L180,620 L170,720 L0,800 Z" },
           "h2-fels": { name: "Granitplatte", stand: [520, 740], face: 420, poly: "M180,560 L560,520 L700,560 L650,720 L200,720 Z" },
           "h2-kiefern": { name: "Zwei Kiefern", stand: [1010, 600], face: 1000, dot: [912, 300], poly: "M880,0 L945,0 L945,490 L880,490 Z M1115,0 L1175,0 L1175,480 L1115,480 Z" },
           "h2-tarp": { name: "Tarp", stand: [1010, 600], face: 1000, hidden: true, poly: "M900,380 L1150,350 L1190,480 L860,500 Z" },
           "h2-birke": { name: "Umgefallene Birke", stand: [1180, 880], face: 1400, poly: "M1050,640 L1920,700 L1920,820 L1650,800 L1050,720 Z" },
           "h2-holz": { name: "Altes Brett", stand: [1450, 900], face: 1450, poly: "M1230,720 L1660,610 L1680,700 L1320,880 L1230,860 Z" },
-          "h2-stein": { name: "Flacher Stein", stand: [880, 860], face: 940, poly: "M900,780 L980,780 L980,830 L900,830 Z" },
-          "h2-heidel": { name: "Blaubeeren", stand: [520, 980], face: 300, poly: "M40,990 L420,990 L420,1075 L40,1075 Z" },
-          "h2-ameisen": { name: "Ameisenhaufen", stand: [420, 960], face: 300, poly: "M230,900 L370,900 L370,970 L230,970 Z" },
+          "h2-stein": { name: "Flacher Stein", kneel: true, stand: [880, 860], face: 940, poly: "M900,780 L980,780 L980,830 L900,830 Z" },
+          "h2-heidel": { name: "Blaubeeren", kneel: true, stand: [520, 980], face: 300, poly: "M40,990 L420,990 L420,1075 L40,1075 Z" },
+          "h2-ameisen": { name: "Ameisenhaufen", kneel: true, stand: [420, 960], face: 300, poly: "M230,900 L370,900 L370,970 L230,970 Z" },
           // Am rechten Rand auf Höhe des Waldwegs, nicht unten in der Ecke (dort liegen die Knöpfe)
           "exit-forstweg": { name: "Zum Forstweg", stand: [1860, 880], face: 1920, dot: [1880, 700], poly: "M1830,560 L1920,560 L1920,850 L1830,850 Z", exit: { to: "treffpunkt", spawn: [200, 880], dir: 1 } }
         }
@@ -105,7 +105,7 @@
         center: [900, 880], y0: 620, s0: 0.45, s1: 0.92,
         hot: {
           "t-bank": { name: "Alte Bank", stand: [1280, 700], face: 1280, sit: [1200, 668, 1], sit2: [1400, 668, -1], poly: "M1100,565 L1465,565 L1465,670 L1100,670 Z" },
-          "t-feuer": { name: "Feuerstelle", stand: [1250, 790], face: 1250, poly: "M1140,680 L1360,680 L1360,760 L1140,760 Z" },
+          "t-feuer": { name: "Feuerstelle", kneel: true, stand: [1250, 790], face: 1250, poly: "M1140,680 L1360,680 L1360,760 L1140,760 Z" },
           "t-holz": { name: "Holzstapel", stand: [430, 760], face: 300, poly: "M80,510 L390,510 L390,700 L80,700 Z" },
           "t-see": { name: "Blick auf den See", stand: [900, 680], face: 900, poly: "M640,400 L1150,400 L1150,560 L640,560 Z" },
           "exit-zurueck": { name: "Zurück zum Lager", stand: [90, 900], face: 0, poly: "M0,760 L110,760 L110,1080 L0,1080 Z", exit: { to: "hannes-neu", spawn: [1760, 950], dir: -1 } }
@@ -113,7 +113,7 @@
       },
       "jonas-wald": ext(R["jonas-wald"], {
         "j-leine": { name: "Platz für eine Wäscheleine", stand: [820, 780], face: 800, poly: "M640,500 L1000,500 L1000,620 L640,620 Z" },
-        "j-wiese": { name: "Grasbüschel", stand: [1200, 960], face: 1200, poly: "M1100,960 L1500,960 L1500,1070 L1100,1070 Z" }
+        "j-wiese": { name: "Grasbüschel", kneel: true, stand: [1200, 960], face: 1200, poly: "M1100,960 L1500,960 L1500,1070 L1100,1070 Z" }
       }, {
         overlays: R["jonas-wald"].overlays + `<g id="j-leinebild" opacity="0" pointer-events="none"><g filter="url(#gradeJonas)"><linearGradient id="stoffBlau" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a6e88"/><stop offset="1" stop-color="#26303e"/></linearGradient><linearGradient id="stoffGruen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a7a48"/><stop offset="1" stop-color="#2c3a1e"/></linearGradient><linearGradient id="stoffGrau" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8278"/><stop offset="1" stop-color="#3e3a34"/></linearGradient><path d="M600,540 Q820,584 1010,530" stroke="#1c1e20" stroke-width="5" fill="none"/><path d="M600,540 Q820,584 1010,530" stroke="#5a5e60" stroke-width="2" fill="none"/><path d="M688,560 L728,566 L734,640 L716,642 L708,592 L700,642 L682,640 Z" fill="url(#stoffBlau)" stroke="#14161a" stroke-width="2" stroke-linejoin="round"/><path d="M700,576 l2,40 M720,578 l4,38" stroke="#1c2430" stroke-width="2" opacity="0.7"/><path d="M790,572 L852,578 L860,600 L846,602 L848,650 L796,646 L796,598 L782,596 Z" fill="url(#stoffGruen)" stroke="#14180e" stroke-width="2" stroke-linejoin="round"/><path d="M806,610 q20,6 32,0 M806,628 q18,5 30,0" stroke="#1e2814" stroke-width="2" fill="none" opacity="0.7"/><path d="M906,566 l12,1 l0,34 q0,10 -10,10 l-12,0 l0,-10 l10,0 z M934,562 l12,0 l0,34 q0,10 -10,10 l-12,0 l0,-10 l10,0 z" fill="url(#stoffGrau)" stroke="#1a1814" stroke-width="2"/><g fill="#2a2620"><rect x="704" y="557" width="4" height="9"/><rect x="814" y="568" width="4" height="9"/><rect x="908" y="560" width="4" height="9"/><rect x="936" y="557" width="4" height="9"/></g><g fill="#9ab8d0" opacity="0.7"><circle cx="712" cy="650" r="2.5"/><circle cx="828" cy="656" r="2.5"/><circle cx="912" cy="620" r="2"/></g></g></g>
           <g id="j-tuer" opacity="0" pointer-events="none"><g filter="url(#gradeJonas)" transform="translate(-318 -14)"><pattern id="fichtenzweige" width="26" height="22" patternUnits="userSpaceOnUse" patternTransform="scale(0.7) rotate(9)"><rect width="26" height="22" fill="#1f3818"/><path d="M2,20 L13,4 L24,20 M7,14 L13,4 L19,14 M5,18 l3,-3 M21,18 l-3,-3 M10,10 l-2,-2 M16,10 l2,-2" stroke="#3f6a2c" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M13,4 v16" stroke="#5a4a2a" stroke-width="1.4"/></pattern><ellipse cx="592" cy="804" rx="90" ry="14" fill="url(#shadowGrad)"/><path d="M530,792 L600,628 L652,792 Q596,806 530,792 Z" fill="url(#fichtenzweige)" stroke="#12200e" stroke-width="2" stroke-linejoin="round"/><path d="M530,792 L600,628 L652,792 Q596,806 530,792 Z" fill="url(#strohSchattenTuer)"/><linearGradient id="strohSchattenTuer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.45"/></linearGradient><path d="M540,770 l-16,-6 M548,740 l-14,-10 M560,708 l-12,-12 M572,676 l-10,-14 M640,760 l16,-8 M630,724 l14,-10 M620,690 l14,-12 M610,656 l12,-12" stroke="#3f6a2c" stroke-width="3" stroke-linecap="round"/><path d="M520,800 L600,610 L660,800 M548,740 L632,740" stroke="#2a1d12" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M520,800 L600,610 L660,800 M548,740 L632,740" stroke="#6a4e30" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g>`

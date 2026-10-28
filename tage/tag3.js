@@ -70,8 +70,8 @@
       "treffpunkt": ext(R2["treffpunkt"], {
         "t-platz": { name: "Freie Stelle", stand: [1560, 760], face: 1620, poly: "M1420,600 L1860,600 L1860,700 L1420,700 Z" },
         "t-tarp": { name: "Tarp", stand: [1560, 760], face: 1620, hidden: true, poly: "M1430,540 L1760,520 L1800,690 L1420,700 Z" },
-        "t-erdbeeren": { name: "Wegrand", stand: [1600, 960], face: 1700, poly: "M1520,900 L1900,900 L1900,1070 L1520,1070 Z" },
-        "t-ketten": { name: "Etwas Rostiges im Gras", stand: [460, 1000], face: 360, poly: "M300,990 L420,990 L420,1060 L300,1060 Z" }
+        "t-erdbeeren": { name: "Wegrand", kneel: true, stand: [1600, 960], face: 1700, poly: "M1520,900 L1900,900 L1900,1070 L1520,1070 Z" },
+        "t-ketten": { name: "Etwas Rostiges im Gras", kneel: true, stand: [460, 1000], face: 360, poly: "M300,990 L420,990 L420,1060 L300,1060 Z" }
       }, {
         overlays: `<g id="t-tarpbild" opacity="0" pointer-events="none"><path d="M1420,690 Q1610,730 1830,680 L1830,705 Q1610,750 1410,712 Z" fill="#0d1408" opacity="0.5" filter="url(#soft)"/><path d="M1520,568 L1520,694 M1727,552 L1727,668" stroke="#4a3624" stroke-width="7" stroke-linecap="round"/><image href="tag1/tarp.png" x="1429" y="549" width="408" height="218" filter="url(#gradeHannes)"/></g>
           <g pointer-events="none"><g fill="none" stroke="#6a4a34" stroke-width="5"><ellipse cx="340" cy="1028" rx="16" ry="9"/><ellipse cx="364" cy="1034" rx="16" ry="9"/><ellipse cx="388" cy="1028" rx="16" ry="9"/></g></g>`

@@ -92,11 +92,11 @@
         center: [900, 820], y0: 640, s0: 0.42, s1: 0.8,
         overlays: `<g id="h-fire" opacity="0" pointer-events="none"><circle cx="1285" cy="590" r="300" fill="url(#glow)"/><use href="#flames" transform="translate(1285 632) scale(1.8)"/></g>`,
         hot: {
-          beeren: { name: "Blaubeeren", stand: [440, 742], face: 300, poly: "M206,600 L470,604 L590,690 L560,756 L236,764 Z" },
+          beeren: { name: "Blaubeeren", kneel: true, stand: [440, 742], face: 300, poly: "M206,600 L470,604 L590,690 L560,756 L236,764 Z" },
           birke: { name: "Birke", stand: [1040, 650], face: 1060, poly: "M1024,130 L1094,130 L1094,548 L1024,548 Z" },
           // Oben auf dem Granitfelsen gibt es einen Balken Empfang (der Steinring darauf hat seinen eigenen Punkt)
           fels: { name: "Großer Felsen", stand: [1500, 735], face: 1400, dot: [1340, 525], poly: "M1080,585 L1180,512 L1400,482 L1560,500 L1570,575 L1430,592 L1146,594 Z" },
-          feuer: { name: "Steinring", stand: [1190, 676], face: 1290, poly: "M1146,596 L1426,596 L1426,672 L1146,672 Z" },
+          feuer: { name: "Steinring", kneel: true, stand: [1190, 676], face: 1290, poly: "M1146,596 L1426,596 L1426,672 L1146,672 Z" },
           wurzel: { name: (E) => (E.flags.baumi ? "Baumi" : "Wurzelteller"), stand: [1520, 760], face: 1700, poly: "M1556,420 L1720,336 L1900,420 L1920,700 L1712,724 L1606,560 Z" },
           "exit-ufer": { name: "Zum Ufer", stand: [250, 820], face: 0, poly: "M0,560 L210,560 L240,1080 L0,1080 Z", exit: { to: "hannes-ufer", spawn: [1820, 820], dir: -1 } }
         }
@@ -119,7 +119,7 @@
           <g pointer-events="none"><g fill="#3a2c1c" stroke="#160f08" stroke-width="2"><ellipse cx="1486" cy="884" rx="9" ry="6"/><ellipse cx="1502" cy="890" rx="9" ry="6"/><ellipse cx="1494" cy="876" rx="8" ry="5"/><ellipse cx="1514" cy="880" rx="8" ry="5"/><ellipse cx="1478" cy="894" rx="7" ry="5"/></g></g>`,
         hot: {
           losung: { name: "Tierlosung", stand: [1400, 890], face: 1500, poly: "M1450,850 L1550,850 L1550,920 L1450,920 Z" },
-          see: { name: "See", stand: [470, 590], face: 380, dot: [560, 480], poly: "M400,420 L1100,420 L1100,520 L620,560 L440,600 L360,560 Z M1190,400 L1920,400 L1920,560 L1190,520 Z" },
+          see: { name: "See", kneel: true, stand: [470, 590], face: 700, dot: [560, 480], poly: "M400,420 L1100,420 L1100,520 L620,560 L440,600 L360,560 Z M1190,400 L1920,400 L1920,560 L1190,520 Z" },
           kiefern: { name: "Zwei Kiefern", stand: [960, 640], face: 960, dot: [785, 300], poly: "M748,0 L822,0 L824,560 L748,560 Z M1112,0 L1186,0 L1186,540 L1112,540 Z" },
           stamm: { name: "Umgestürzter Stamm", stand: [1400, 730], face: 1450, poly: "M1200,570 L1700,620 L1700,690 L1200,620 Z" },
           tarp: { name: "Tarp", stand: [1000, 700], face: 960, hidden: true, poly: "M780,360 L1150,340 L1290,560 L930,650 L690,590 Z" },
@@ -143,8 +143,8 @@
           "j-wurzel": { name: "Wurzelteller", stand: [1120, 880], face: 1300, poly: "M1012,250 L1300,250 L1600,400 L1600,700 L1030,690 Z" },
           "j-ueberhang": { name: "Felsvorsprung", stand: [1700, 820], face: 1760, poly: "M1500,300 L1920,300 L1920,590 L1600,590 L1560,420 Z" },
           "j-spuren": { name: "Wühlspuren", stand: [700, 840], face: 760, poly: "M600,700 L870,680 L910,770 L620,790 Z" },
-          "j-kraut": { name: "Gelbe Blüten", stand: [720, 1000], face: 830, poly: "M780,880 L900,880 L900,990 L780,990 Z" },
-          "j-beeren": { name: "Rote Beeren", stand: [540, 980], face: 400, poly: "M320,880 L460,880 L460,980 L320,980 Z" },
+          "j-kraut": { name: "Gelbe Blüten", kneel: true, stand: [720, 1000], face: 830, poly: "M780,880 L900,880 L900,990 L780,990 Z" },
+          "j-beeren": { name: "Rote Beeren", kneel: true, stand: [540, 980], face: 400, poly: "M320,880 L460,880 L460,980 L320,980 Z" },
           "j-plane": { name: "Hornbach-Plane", stand: [560, 860], face: 420, hidden: true, poly: "M230,640 L620,600 L660,800 L210,820 Z" },
           "exit-see": { name: "Zum See", stand: [230, 920], face: 0, poly: "M0,620 L180,620 L180,1080 L0,1080 Z", exit: { to: "jonas-see", spawn: [1780, 900], dir: -1 } }
         }
@@ -159,11 +159,11 @@
           <g id="j-skelett" pointer-events="none"><path d="M330,742 q60,-18 120,0" stroke="#d8d2c0" stroke-width="5" fill="none"/><path d="M350,742 l-8,-12 M366,738 l-6,-14 M382,736 l-4,-15 M398,736 l0,-15 M414,738 l4,-14 M430,740 l6,-12" stroke="#d8d2c0" stroke-width="3"/><path d="M450,742 l22,-10 l0,20 z" fill="none" stroke="#d8d2c0" stroke-width="3"/><circle cx="326" cy="742" r="8" fill="none" stroke="#d8d2c0" stroke-width="3"/></g>
           <g id="j-kroete" pointer-events="none"><ellipse cx="880" cy="934" rx="26" ry="16" fill="#6a5a34" stroke="#2a2010" stroke-width="2"/><circle cx="866" cy="922" r="6" fill="#7a6a40" stroke="#2a2010" stroke-width="2"/><circle cx="866" cy="921" r="2.4" fill="#111"/><circle cx="890" cy="926" r="3" fill="#4a3e22"/><circle cx="878" cy="940" r="2.5" fill="#4a3e22"/></g>`,
         hot: {
-          "j-see": { name: "See", stand: [620, 740], face: 400, poly: "M0,400 L700,400 L700,520 L560,620 L470,700 L0,700 Z" },
-          "j-skelett": { name: "Etwas Helles im Wasser", stand: [560, 770], face: 380, poly: "M300,712 L490,712 L490,770 L300,770 Z" },
-          "j-steine": { name: "Lose Steine", stand: [660, 790], face: 600, poly: "M520,690 L760,620 L780,720 L640,800 L520,780 Z" },
+          "j-see": { name: "See", kneel: true, stand: [620, 740], face: 400, poly: "M0,400 L700,400 L700,520 L560,620 L470,700 L0,700 Z" },
+          "j-skelett": { name: "Etwas Helles im Wasser", kneel: true, stand: [560, 770], face: 380, poly: "M300,712 L490,712 L490,770 L300,770 Z" },
+          "j-steine": { name: "Lose Steine", kneel: true, stand: [660, 790], face: 600, poly: "M520,690 L760,620 L780,720 L640,800 L520,780 Z" },
           "j-kroete": { name: "Kröte", stand: [800, 960], face: 880, poly: "M840,905 L920,905 L920,960 L840,960 Z" },
-          "j-feuer": { name: "Platte unterm Felsen", stand: [1120, 740], face: 1210, poly: "M1000,560 L1460,560 L1460,690 L1000,690 Z" },
+          "j-feuer": { name: "Platte unterm Felsen", kneel: true, stand: [1120, 740], face: 1210, poly: "M1000,560 L1460,560 L1460,690 L1000,690 Z" },
           "j-ueberhang-see": { name: "Felsüberhang", stand: [1100, 740], face: 1200, poly: "M880,300 L1700,260 L1720,520 L1100,470 L880,380 Z" },
           "j-astgabeln": { name: "Zwei Astgabeln", stand: [1300, 860], face: 1420, poly: "M1270,700 L1580,700 L1560,840 L1270,800 Z" },
           "exit-wald": { name: "In den Wald", stand: [1860, 900], face: 1920, poly: "M1780,680 L1920,680 L1920,1080 L1780,1080 Z", exit: { to: "jonas-wald", spawn: [240, 900], dir: 1 } }
