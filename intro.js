@@ -26,28 +26,26 @@ window.AusgesetztIntro = (function () {
     <div class="shot" data-s="0"><img src="intro/01-see.jpg" alt=""></div>
     <div class="shot" data-s="1"><img src="intro/02-strasse.jpg" alt=""></div>
     <div class="shot" data-s="2"><img src="intro/03-auto.jpg" alt=""></div>
-    <div class="shot" data-s="3"><svg viewBox="0 0 1280 720" aria-label="Karte mit den beiden Aussetzpunkten und dem Treffpunkt">
-      <defs><radialGradient id="iVig" cx="50%" cy="50%" r="70%"><stop offset="0.6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.55"/></radialGradient>
-      <pattern id="iTrees" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M11,3 L16,15 L6,15 Z" fill="#2a5a2a" opacity="0.7"/></pattern></defs>
-      <rect width="1280" height="720" fill="#3f6e36"/><rect width="1280" height="720" fill="url(#iTrees)"/>
-      <path d="M210,40 C170,140 150,260 190,360 C230,470 170,560 200,700 L80,700 C40,560 70,420 60,300 C50,180 110,90 140,40 Z" fill="#2a74a8" stroke="#16486c" stroke-width="3"/>
-      <path d="M330,120 C360,100 400,110 400,140 C398,170 350,175 330,150 Z" fill="#2a74a8" stroke="#16486c" stroke-width="2"/>
-      <path d="M420,560 C470,540 540,560 560,590 C540,620 460,620 420,600 Z" fill="#2a74a8" stroke="#16486c" stroke-width="2"/>
-      <path d="M640,520 C700,490 790,500 820,530 C800,580 720,600 660,570 Z" fill="#2a74a8" stroke="#16486c" stroke-width="3"/>
-      <path d="M860,470 C930,430 1060,440 1100,480 C1120,530 1020,560 940,540 C890,530 860,510 860,470 Z" fill="#2a74a8" stroke="#16486c" stroke-width="3"/>
-      <path d="M980,60 C1000,140 1010,240 1060,330 C1100,400 1180,430 1280,420" stroke="#e6d39a" stroke-width="5" fill="none" opacity="0.75"/>
-      <path d="M600,700 C620,640 700,600 780,560 C840,530 900,520 980,500 C1060,480 1150,500 1280,480" stroke="#e6d39a" stroke-width="5" fill="none" opacity="0.75"/>
-      <path data-route="j" d="M470,190 C520,230 560,300 520,380 C490,450 560,520 640,560" stroke="#8cc4f4" stroke-width="7" fill="none" stroke-linecap="round"/>
-      <path data-route="h" d="M890,430 C850,470 820,500 790,520" stroke="#ff7a5c" stroke-width="7" fill="none" stroke-linecap="round"/>
-      <g data-pin="j" opacity="0"><circle cx="470" cy="190" r="13" fill="#4a90d9" stroke="#fff" stroke-width="3"/><text x="492" y="180" font-family="Spectral SC, Georgia, serif" font-size="30" fill="#fff" stroke="#000" stroke-width="5" paint-order="stroke">Aussetzung Jonas</text></g>
-      <g data-pin="h" opacity="0"><circle cx="890" cy="430" r="13" fill="#d9534f" stroke="#fff" stroke-width="3"/><text x="912" y="420" font-family="Spectral SC, Georgia, serif" font-size="30" fill="#fff" stroke="#000" stroke-width="5" paint-order="stroke">Aussetzung Hannes</text></g>
-      <g data-pin="t" opacity="0"><path d="M720,546 l14,-30 h-28 Z" fill="#e8b044" stroke="#fff" stroke-width="3"/><circle cx="720" cy="508" r="15" fill="#e8b044" stroke="#fff" stroke-width="3"/><text x="720" y="470" text-anchor="middle" font-family="Spectral SC, Georgia, serif" font-size="34" font-weight="700" fill="#f4ecd8" stroke="#000" stroke-width="6" paint-order="stroke">Seepferdchensee</text><text x="720" y="430" text-anchor="middle" font-family="Alegreya Sans, sans-serif" font-size="26" fill="#f4ecd8" stroke="#000" stroke-width="5" paint-order="stroke">Treffpunkt</text></g>
+    <div class="shot" data-s="3"><svg viewBox="0 0 1280 720" style="transform-origin:42% 74%" aria-label="Karte mit den echten Seen: die beiden Aussetzpunkte, der Seepferdchensee und der Weg zu Stefan">
+      <defs><radialGradient id="iVig" cx="50%" cy="50%" r="70%"><stop offset="0.6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.5"/></radialGradient></defs>
+      <!-- Echte Seeumrisse (OpenStreetMap), gebaut mit tools/karte_bauen.py; Orte aus tools/karte-orte.json -->
+      <image href="intro/karte.svg" x="0" y="0" width="1280" height="720"/>
+      <path data-route="w" d="M513,581 C560,560 600,500 636,474 C640,430 630,380 628,342 C622,310 610,290 603,270 C585,230 555,200 538,173" stroke="#7a2a1a" stroke-width="4" stroke-dasharray="2 9" fill="none" stroke-linecap="round" opacity="0.85"/>
+      <path data-route="j" d="M428,515 C452,530 470,560 513,581" stroke="#2f6fd0" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path data-route="h" d="M526,602 C532,594 524,588 518,586" stroke="#d0402c" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <g font-family="Spectral SC, Georgia, serif" paint-order="stroke" stroke-linejoin="round">
+      <g data-pin="j" opacity="0"><circle cx="428" cy="515" r="10" fill="#2f6fd0" stroke="#fff" stroke-width="3"/><text x="414" y="506" text-anchor="end" font-size="26" fill="#fff" stroke="#000" stroke-width="5">Aussetzung Jonas</text></g>
+      <g data-pin="h" opacity="0"><circle cx="526" cy="602" r="7" fill="#d0402c" stroke="#fff" stroke-width="3"/><text x="534" y="628" font-size="26" fill="#fff" stroke="#000" stroke-width="5">Aussetzung Hannes</text></g>
+      <g data-pin="t" opacity="0"><circle cx="513" cy="581" r="17" fill="none" stroke="#000" stroke-width="6" opacity="0.5"/><circle cx="513" cy="581" r="17" fill="none" stroke="#e8b044" stroke-width="3.5"/><text x="530" y="556" font-size="32" font-weight="700" fill="#f4ecd8" stroke="#000" stroke-width="6">Seepferdchensee</text><text x="532" y="526" font-family="Alegreya Sans, sans-serif" font-size="22" fill="#f4ecd8" stroke="#000" stroke-width="5">Treffpunkt an Tag 4</text></g>
+      <g data-pin="s" opacity="0"><path d="M538,156 l13,12 v14 h-26 v-14 z" fill="#b8322a" stroke="#fff" stroke-width="2.5"/><text x="560" y="182" font-size="24" fill="#fff" stroke="#000" stroke-width="5">Stefan</text></g>
+      </g>
+      <text x="1258" y="700" text-anchor="end" font-family="Alegreya Sans, sans-serif" font-size="15" fill="#2b3b2b" opacity="0.8">Glaskogen · Värmland · Kartendaten © OpenStreetMap</text>
       <rect width="1280" height="720" fill="url(#iVig)"/></svg></div>
     <div class="shot" data-s="4"><img src="intro/04-jonas.jpg" alt=""></div>
     <div class="shot" data-s="5"><img src="intro/05-hannes.jpg" alt=""></div>
     <canvas width="960" height="540"></canvas>
     <div class="bar" style="top:0"></div><div class="bar" style="bottom:0"></div>
-    <div class="ititle" data-t="title"><h1>Ausgesetzt</h1></div>
+    <div class="ititle" data-t="title"><h1>Survive Schweden</h1></div>
     <div class="ititle iday" data-t="day"><div><h1>Tag 1</h1><p>Willkommen in Schweden</p></div></div>
     <div class="iportrait"><img src="intro/stefan.jpg" alt="Stefan"></div>
     <div class="isub"></div>
@@ -57,7 +55,7 @@ window.AusgesetztIntro = (function () {
     { t0: 0, t1: 14500, from: { s: 1.04, x: 2, y: 0 }, to: { s: 1.2, x: -3, y: 1 } },
     { t0: 13700, t1: 27000, from: { s: 1.0, x: 0, y: 0 }, to: { s: 1.45, x: 6, y: -12 }, rain: 0.45, motor: 0.5 },
     { t0: 26200, t1: 40000, from: { s: 1.14, x: 0, y: 2 }, to: { s: 1.02, x: 0, y: 0 }, motor: 1 },
-    { t0: 39200, t1: 50500, from: { s: 1.0, x: 0, y: 0 }, to: { s: 1.08, x: -2, y: -2 } },
+    { t0: 39200, t1: 50500, from: { s: 1.05, x: 0, y: -6 }, to: { s: 1.6, x: 4, y: -24 } },
     { t0: 49700, t1: 68000, from: { s: 1.0, x: 0, y: 0 }, to: { s: 1.25, x: 8, y: -5 }, rain: 1 },
     { t0: 67200, t1: 82600, from: { s: 1.25, x: 4, y: -6 }, to: { s: 1.0, x: 0, y: 0 }, rain: 0.8 }
   ].map((s, i) => ({ ...s, el: q(`[data-s="${i}"]`), img: q(`[data-s="${i}"] > *`) }));
@@ -155,6 +153,9 @@ window.AusgesetztIntro = (function () {
     q('[data-pin="j"]').setAttribute("opacity", Math.max(0, Math.min(1, (k - 1200) / 500)));
     q('[data-pin="h"]').setAttribute("opacity", Math.max(0, Math.min(1, (k - 3200) / 500)));
     q('[data-pin="t"]').setAttribute("opacity", Math.max(0, Math.min(1, (k - 5600) / 500)));
+    // Danach kurz der ganze Weg bis zu Stefan (Tag 5 bis 7), bevor die Kamera zum Treffpunkt fährt
+    q('[data-pin="s"]').setAttribute("opacity", Math.max(0, Math.min(1, (k - 900) / 500)) * Math.max(0, Math.min(1, (6500 - k) / 600)));
+    q('[data-route="w"]').style.opacity = Math.max(0, Math.min(1, (k - 500) / 900, (6500 - k) / 600)) * 0.85;
     route(q('[data-route="j"]'), (k - 1600) / 2600);
     route(q('[data-route="h"]'), (k - 3600) / 1600);
     q(".iportrait").style.opacity = fadeIn(t, 33500, 39000, 500);

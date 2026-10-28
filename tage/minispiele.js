@@ -307,9 +307,16 @@
   });
 
   // ---------- Kartennavigation (Tag 5, 6 und 7; Tag 6/7 bringen eigene Wegpunkte mit) ----------
+  // Echte Karten (tools/karte_bauen.py, Seen aus OpenStreetMap). Wegpunkte liegen entlang der echten Strecke
+  // vom Start- zum Zielort des Tages und immer an Land (nur die Brücke an Tag 6 liegt über dem See).
+  const ECHT = {
+    tag5: { bg: "tage/karte-tag5.svg", pos: { start: [324, 356], huegel: [357, 277], sumpfweg: [455, 363], steinbruch: [413, 193], privat: [438, 114], querfeldein: [510, 233], traktor: [604, 277], see: [552, 178], fluss: [641, 222], spuren: [639, 153], ziel: [636, 84] } },
+    tag6: { bg: "tage/karte-tag6.svg", pos: { start: [488, 356], strasse: [415, 295], privat: [303, 278], damm: [477, 212], schotter: [585, 197], bach: [523, 159], ziel: [472, 84] } },
+    tag7: { bg: "tage/karte-tag7.svg", pos: { start: [572, 356], huegel: [451, 350], hof: [334, 385], wiese: [463, 255], strasse: [319, 277], wald: [417, 163], ziel: [388, 84] } }
+  };
+  const aufKarte = (N, E) => Object.fromEntries(Object.entries(N).map(([k, n]) => [k, Object.assign({}, n, E.pos[k] ? { x: E.pos[k][0], y: E.pos[k][1] } : {})]));
   const KARTEN = {
     tag6: {
-      deco: `<path d="M60,330 C140,250 260,260 330,320 C260,380 120,390 60,330 Z" fill="#9cc2dc" stroke="#5a8aa8"/><path d="M620,120 C720,90 860,130 880,200 C820,250 700,230 640,190 Z" fill="#9cc2dc" stroke="#5a8aa8"/>`,
       N: {
         start: { x: 170, y: 320, name: "Großer See", to: ["strasse"] },
         strasse: { x: 300, y: 220, name: "Kleine Straße", to: ["privat", "damm"] },
@@ -321,7 +328,6 @@
       }
     },
     tag7: {
-      deco: `<path d="M720,300 C780,260 900,270 920,330 C880,390 760,380 720,300 Z" fill="#9cc2dc" stroke="#5a8aa8"/>`,
       N: {
         start: { x: 120, y: 330, name: "Steg vom Vortag", to: ["huegel"] },
         huegel: { x: 260, y: 220, name: "Hügel ohne Schatten", to: ["hof", "wiese"] },
@@ -336,8 +342,8 @@
   M("karte", (api, opts) => {
     api.title(opts.title || "Nur mit Stefans Landkarte");
     api.text(opts.text || "Wähle den nächsten Wegpunkt. Das Gelände hält sich nicht immer an die Karte.");
-    const K = KARTEN[opts.map];
-    const N = K ? K.N : {
+    const K = KARTEN[opts.map], echt = ECHT[opts.map || "tag5"];
+    let N = K ? K.N : {
       start: { x: 90, y: 330, name: "Seepferdchensee", to: ["huegel"] },
       huegel: { x: 230, y: 250, name: "Hügel mit Heidelbeeren", to: ["steinbruch", "sumpfweg"] },
       sumpfweg: { x: 300, y: 380, name: "Abkürzung durchs Moor", to: ["huegel"], dead: "Knietief im Moor. Zurück auf den Hügel." },
@@ -350,18 +356,19 @@
       spuren: { x: 830, y: 200, name: "Feste Fahrspuren", to: ["ziel"] },
       ziel: { x: 900, y: 120, name: "Schotterstraße zum großen See", to: [] }
     };
+    if (echt) N = aufKarte(N, echt);
     const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg");
     svg.setAttribute("viewBox", "0 0 960 440");
     api.body.appendChild(svg);
     let at = "start", steps = 0, deadEnds = 0;
     const draw = () => {
-      let s = `<rect width="960" height="440" fill="#e8dfc4"/>` + (K ? K.deco : `<path d="M40,360 C120,300 60,260 140,250 C200,240 160,330 90,380 Z" fill="#9cc2dc" stroke="#5a8aa8"/><path d="M600,150 q60,-30 100,20 q-30,50 -90,20 z" fill="#9cc2dc" stroke="#5a8aa8"/><path d="M700,240 C760,260 800,300 860,360" stroke="#5a8aa8" stroke-width="4" fill="none"/>`);
-      s += `<text x="20" y="30" font-family="Spectral SC, serif" font-size="20" fill="#5a4a2a">Karte von Stefan · ${steps} Etappen</text>`;
+      let s = `<rect width="960" height="440" fill="#e4e8bd"/><image href="${echt.bg}" x="0" y="0" width="960" height="440"/><rect width="960" height="440" fill="#f4efd8" opacity="0.18"/>`;
+      s += `<text x="20" y="30" font-family="Spectral SC, serif" font-size="20" fill="#3a3a1a" paint-order="stroke" stroke="#eef0d0" stroke-width="4">Karte von Stefan · ${steps} Etappen</text><text x="944" y="430" text-anchor="end" font-family="Alegreya Sans, sans-serif" font-size="11" fill="#3a4a3a">Kartendaten © OpenStreetMap</text>`;
       for (const [k, n] of Object.entries(N)) for (const t of n.to) s += `<line x1="${n.x}" y1="${n.y}" x2="${N[t].x}" y2="${N[t].y}" stroke="#8a7a5a" stroke-dasharray="6 6" stroke-width="2"/>`;
       for (const [k, n] of Object.entries(N)) {
         const reach = N[at].to.includes(k);
         s += `<g data-k="${k}" style="cursor:${reach ? "pointer" : "default"}"><circle cx="${n.x}" cy="${n.y}" r="${k === at ? 14 : 10}" fill="${k === at ? "#e8b044" : reach ? "#2f6fa8" : "#b5a77e"}" stroke="#3a2a14" stroke-width="2"/>
-          <text x="${n.x}" y="${n.y - 18}" text-anchor="${n.x > 780 ? "end" : n.x < 160 ? "start" : "middle"}" font-family="Alegreya Sans, sans-serif" font-size="14" font-weight="700" fill="${reach ? "#1f2a3a" : "#7a6a4a"}">${n.name}</text></g>`;
+          <text x="${n.x}" y="${n.y - 18}" text-anchor="${n.x > 780 ? "end" : n.x < 160 ? "start" : "middle"}" font-family="Alegreya Sans, sans-serif" font-size="14" font-weight="700" fill="${reach ? "#1f2a3a" : "#5a4a2a"}" paint-order="stroke" stroke="#f4f2dc" stroke-width="4">${n.name}</text></g>`;
       }
       svg.innerHTML = s;
       for (const g of svg.querySelectorAll("[data-k]")) g.addEventListener("click", (e) => { e.stopPropagation(); go(g.dataset.k); });
