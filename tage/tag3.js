@@ -332,12 +332,12 @@
     return [];
   }
 
-  const PULS = { title: "Puls über 120", text: "Hannes wacht auf. Sein Herz rast, obwohl er nur daliegt. Über 120 Schläge in Ruhe.", opts: [
+  const PULS = { bild: "puls", ton: "herzschlag", title: "Puls über 120", text: "Hannes wacht auf. Sein Herz rast, obwohl er nur daliegt. Über 120 Schläge in Ruhe.", opts: [
     { label: "Die kleine Notration essen und viel trinken", go: (E) => { E.drop("notration", "hannes"); E.goal("puls"); E.stat("health", 10); return ["H: Ich hab mir die kleine Notration reingepfiffen. Bei dem Ruhepuls war das schon scary.", "H: … Ich glaube, es hat sich alles stabilisiert.", "f4-helden"]; } },
     { label: "Notfalls das Handy anmachen und ChatGPT und Gemini fragen", go: (E) => { E.drop("notration", "hannes"); E.goal("puls"); return ["H: Beide meinten: Das sollte man vielleicht nicht ignorieren.", "H: Also doch die Notration. Und trinken. Viel trinken.", "f4-helden"]; } },
     { label: "Einfach liegen bleiben und abwarten", go: (E) => { E.hurt(15); E.drop("notration", "hannes"); E.goal("puls"); return ["H: … Wird nicht besser. Ich bin hier am Arsch.", "H: Okay. Notration. Jetzt.", "f4-helden"]; } }
   ] };
-  const PFLANZE = { title: "Was blüht da?", text: "Zwei Pflanzen am Wegesrand. Eine mit fünf gelben Blütenblättern, eine mit breiten, gerippten Blättern dicht am Boden.", opts: [
+  const PFLANZE = { bild: "pflanze", title: "Was blüht da?", text: "Zwei Pflanzen am Wegesrand. Eine mit fünf gelben Blütenblättern, eine mit breiten, gerippten Blättern dicht am Boden.", opts: [
     { label: "Die gelbe Blüte zwischen den Fingern zerreiben", value: true, go: () => ["J: Eindeutig rot. Das heißt: Johanniskraut.", "J: Die Blüte hab ich auch wiedererkannt, fünfblättrig, gelb. Das kommt mit rein."] },
     { label: "Die breiten Blätter auf die Mückenstiche reiben", value: false, go: (E) => { E.stat("fourth", -4); return ["J: Ich bin nicht sicher, ob das hier Breitwegerich ist. Sieht ein bisschen so aus …", "J: Ja. Lieber nicht. Erst die gelbe Blüte prüfen."]; } },
     { label: "Beides einfach essen", value: false, go: (E) => { E.hurt(6); return ["J: Bitter. Und ich weiß nicht mal, was ich da gerade gegessen hab. Dumme Idee."]; } }

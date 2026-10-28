@@ -174,7 +174,7 @@ window.Ausgesetzt = (function () {
   // Alles im Browser erzeugt: Platschen, Hacken, Rascheln, Gluckern, Schnarchen, Papier, Kratzen am Fels
   let sfxBus = null;
   // Pegel je Geräusch, damit alle etwa gleich deutlich über der Umgebung liegen und unter den Stimmen bleiben
-  const PEGEL = { zischen: 0.55, grunzen: 0.85, summen: 5.5, krachen: 1.3, bellen: 2.1, knarzen: 3, plopp: 1.2, specht: 0.9, platsch: 3.2, raus: 2.6, hacken: 0.7, rascheln: 1, kratzen: 3, papier: 1.1, gluckern: 1.7, schnarchen: 2.8 };
+  const PEGEL = { blubbern: 0.9, knistern: 0.75, herzschlag: 1, riss: 1.3, piepen: 1.6, pups: 0.7, wind: 1.3, zischen: 0.55, grunzen: 0.85, summen: 5.5, krachen: 1.3, bellen: 2.1, knarzen: 3, plopp: 1.2, specht: 0.9, platsch: 3.2, raus: 2.6, hacken: 0.7, rascheln: 1, kratzen: 3, papier: 1.1, gluckern: 1.7, schnarchen: 2.8 };
   const audioCtx = () => ac;
   // probe: { ac, ziel } rendert unhörbar in einen anderen Kontext (nur für automatische Tests)
   function sfx(name, vol, probe) {
@@ -268,6 +268,33 @@ window.Ausgesetzt = (function () {
       g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.35, now + 0.2); g.gain.exponentialRampToValueAtTime(0.0001, now + 1);
       o.connect(filter("bandpass", 700, 4)).connect(g).connect(out); o.start(now); am.start(now); o.stop(now + 1.05); am.stop(now + 1.05);
       tropfen(now + 0.3, 6, 1, 0.08);
+    } else if (name === "blubbern") {
+      // Kochendes Wasser: viele kleine, tiefe Blasen und Zischen vom Dampf
+      for (let i = 0; i < 26; i++) { const t0 = now + Math.random() * 1.6, f = 160 + Math.random() * 260; ton(t0, f, f * 2.2, 0.05 + Math.random() * 0.04, 0.35); }
+      const n = rausch(1.6, (k) => 0.4 * Math.sin(Math.PI * k)); n.connect(filter("highpass", 3500)).connect(out); n.start(now);
+    } else if (name === "knistern") {
+      for (let i = 0; i < 22; i++) { const t0 = now + Math.random() * 1.4, n = rausch(0.02, (k) => Math.pow(1 - k, 4)); const g = ac.createGain(); g.gain.value = 0.4 + Math.random() * 0.6; n.connect(filter("highpass", 1500)).connect(g).connect(out); n.start(t0); }
+      const w = rausch(1.4, (k) => 0.3 * Math.sin(Math.PI * k)); w.connect(filter("lowpass", 400)).connect(out); w.start(now);
+    } else if (name === "herzschlag") {
+      // Schneller Puls: Doppelschläge, tief und dumpf
+      for (let i = 0; i < 5; i++) { const t0 = now + i * 0.48; ton(t0, 70, 45, 0.12, 0.9); ton(t0 + 0.14, 60, 40, 0.1, 0.6); }
+    } else if (name === "riss") {
+      // Naht reißt: ratschendes Geräusch, dann ein Schnalzen
+      const n = rausch(0.35, (k, t) => (Math.random() < 0.5 ? 1 : 0.2) * (1 - k)); n.connect(filter("bandpass", 2400, 0.8)).connect(out); n.start(now);
+      ton(now + 0.33, 900, 200, 0.08, 0.6, "triangle");
+    } else if (name === "piepen") {
+      // Kamera / Handy: zwei kurze Pieptöne
+      ton(now, 1760, 1760, 0.09, 0.4, "square"); ton(now + 0.16, 2350, 2350, 0.12, 0.4, "square");
+    } else if (name === "pups") {
+      const o = ac.createOscillator(), g = ac.createGain(), am = ac.createOscillator(), amg = ac.createGain();
+      o.type = "sawtooth"; o.frequency.setValueAtTime(110, now); o.frequency.exponentialRampToValueAtTime(70, now + 0.6);
+      am.frequency.value = 28; amg.gain.value = 0.7; am.connect(amg).connect(g.gain);
+      g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.6, now + 0.04); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+      o.connect(filter("lowpass", 500)).connect(g).connect(out); o.start(now); am.start(now); o.stop(now + 0.7); am.stop(now + 0.7);
+    } else if (name === "wind") {
+      const n = rausch(2.4, (k) => Math.sin(Math.PI * k) * (0.7 + 0.3 * Math.sin(k * 14))), f = filter("bandpass", 500, 0.6);
+      f.frequency.setValueAtTime(350, now); f.frequency.linearRampToValueAtTime(900, now + 1.2); f.frequency.linearRampToValueAtTime(400, now + 2.4);
+      n.connect(f).connect(out); n.start(now);
     } else if (name === "schnarchen") {
       // Einatmen mit Schnarren, kurz still, Ausatmen
       const ein = rausch(1.3, (k) => Math.sin(Math.PI * k) * (0.6 + 0.4 * Math.sin(k * 1300)));

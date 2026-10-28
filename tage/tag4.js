@@ -297,17 +297,17 @@
     return [];
   }
 
-  const SEE = { title: "Welcher See ist es?", text: "Oben angekommen. Vor Jonas liegt ein See. Auf Stefans Karte ist der Treffpunkt am Seepferdchensee markiert. Woran erkennt er ihn?", opts: [
+  const SEE = { bild: "see", ton: "wind", title: "Welcher See ist es?", text: "Oben angekommen. Vor Jonas liegt ein See. Auf Stefans Karte ist der Treffpunkt am Seepferdchensee markiert. Woran erkennt er ihn?", opts: [
     { label: "An der Form: Nase rechts oben, Fuß unten, genau wie ein Seepferdchen", value: true, go: () => ["f5-seepferdchen", "Dann bin ich jetzt hier am Fuß vom Seepferdchen. Da hoch und dann rechts die Nase. Bald bin ich da."] },
     { label: "Am Fisch, der gerade gesprungen ist", value: false, go: (E) => { E.stat("fourth", -8); return ["Ein dicker Fisch. Schön. Hilft aber nicht beim Orientieren."]; } },
     { label: "Der See an der Straße, da wo ich ausgesetzt wurde", value: false, go: (E) => { E.stat("fourth", -8); return ["Nee. Das ist der See, an dem ich zuerst hätte ausgesetzt werden sollen. Direkt an der Straße."]; } }
   ] };
-  const INTERVIEW_J = { title: "Interview mit Jonas", text: "Interviewtime. Goldener Schnitt, Kamera läuft. Was fragt Hannes?", opts: [
+  const INTERVIEW_J = { bild: "interview", ton: "piepen", title: "Interview mit Jonas", text: "Interviewtime. Goldener Schnitt, Kamera läuft. Was fragt Hannes?", opts: [
     { label: "Was war bisher am schwersten?", go: () => ["J: Magenverstimmung, ein bisschen Durchfall … und Langeweile. Der eine Nachmittag, wo die Zeit einfach nicht vergangen ist."] },
     { label: "Was war am geilsten?", go: () => ["J: Dass das mit der Hängematte geklappt hat. Und mit dem Löffel.", "f5-gamechanger"] },
     { label: "Was würdest du jetzt am liebsten essen?", go: () => ["J: Eine Pizza.", "J: Hunger eigentlich keiner. Aber eben war ich schon ein bisschen dizzy. Die Erdbeeren haben geholfen."] }
   ] };
-  const INTERVIEW_H = { title: "Reverse-Interview", text: "Jetzt bist du fällig, Hannes. Was fragt Jonas?", opts: [
+  const INTERVIEW_H = { bild: "interview", ton: "piepen", title: "Reverse-Interview", text: "Jetzt bist du fällig, Hannes. Was fragt Jonas?", opts: [
     { label: "Wie würdest du den ersten Tag in einem Wort beschreiben?", go: () => ["f5-nass", "J: Geil, nass wäre auch mein Wort gewesen."] },
     { label: "Womit hattest du am meisten zu kämpfen?", go: () => ["H: Alleine sein, auf jeden Fall. Ich dachte, Feuer machen wird ein Problem. War es gar nicht."] },
     { label: "Was war dein bester Gegenstand?", go: () => ["H: Meine Titanflasche. Die hat hart gecarried. Kochen, Smoothies, Wasserfilter."] }

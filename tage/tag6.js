@@ -232,16 +232,16 @@
     E.sleep(); return [];
   }
 
-  const KREISLAUF = { title: "Kreislauf im Keller", text: "Muskulär ist alles in Ordnung. Aber schnell aufstehen? Feuer anpusten? Gerade nicht drin.", opts: [
+  const KREISLAUF = { bild: "kreislauf", ton: "herzschlag", title: "Kreislauf im Keller", text: "Muskulär ist alles in Ordnung. Aber schnell aufstehen? Feuer anpusten? Gerade nicht drin.", opts: [
     { label: "Erst einen Tannennadeltee, dann alles andere", go: (E) => { E.learn("kreislauf"); E.stat("fourth", 10); E.stat("fourth", 10, "jonas"); return ["H: Tee macht alles wieder fit."]; } },
     { label: "Sofort aufspringen und losgehen", go: (E) => { E.hurt(6); E.hurt(6, "jonas"); return ["J: Mir wird schwarz vor Augen. Langsam, langsam."]; } }
   ] };
-  const HOEHE = { title: "Hab ich erwähnt …", text: "„… dass ich ein bisschen Höhenangst hab?“ Vor Jonas liegt die lange Brücke über den See.", opts: [
+  const HOEHE = { bild: "hoehe", ton: "wind", title: "Hab ich erwähnt …", text: "„… dass ich ein bisschen Höhenangst hab?“ Vor Jonas liegt die lange Brücke über den See.", opts: [
     { label: "Ganz links am Geländer gehen, Hannes geht daneben", value: ["f7-hoehenangst", "H: Nein. Wir gehen ganz links am Geländer.", "J: … Geht. Geht doch."], go: (E) => { E.flags.bruecke = true; E.goal("bruecke"); return []; } },
     { label: "Augen zu und durchrennen", value: ["J: Augen zu … AU. Gegen das Geländer."], go: (E) => { E.hurt(8, "jonas"); E.flags.bruecke = true; E.goal("bruecke"); return []; } },
     { label: "Einen anderen Weg suchen", value: ["H: Es gibt keinen anderen Weg. Nur die Brücke."], go: () => [] }
   ] };
-  const GURT = { title: "Peng!", text: "Mitten auf der Straße reißt Jonas' Drybag-Gurt. Komplett aus der oberen Naht gerissen.", opts: [
+  const GURT = { bild: "gurt", ton: "riss", title: "Peng!", text: "Mitten auf der Straße reißt Jonas' Drybag-Gurt. Komplett aus der oberen Naht gerissen.", opts: [
     { label: "Mit Paracord eine neue Schlaufe knoten", go: (E) => { E.goal("gurt"); E.time(15); return ["H: Hast du einfach Peng gemacht?", "H: Paracord durch, Knoten, fest. Hält."]; } },
     { label: "Über beide Schultern werfen und vorne festhalten", go: (E) => { E.goal("gurt"); E.stat("fourth", -15, "jonas"); return ["H: Hast du einfach Peng gemacht?", "J: Das erwürgt mich ja. … Aber jetzt hab ich's auf beiden Schultern gleichzeitig. Vielleicht ist das ein Gewinn."]; } }
   ] };

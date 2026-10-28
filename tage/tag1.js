@@ -559,7 +559,7 @@
     { label: "Wegrennen", go: (E) => { E.hurt(25); return ["Ich renn los – und lieg im Matsch. Knie aufgeschlagen.", "Das Wildschwein? Hat sich nicht mal bewegt."]; } },
     { label: "Den Wolfsschrei machen", go: () => ["Auuuuuuu!", "… Es schaut mich nur komisch an und geht. Peinlich, aber wirksam."] }
   ] };
-  const KI = { title: "KI-Analyse", text: "Hannes hält sein Handy über die Losung. Kein Empfang, aber die Kamera läuft. Ergebnis der Analyse: 87 % Elch, 9 % Reh, 4 % Sascha.", opts: [
+  const KI = { bild: "ki", ton: "piepen", title: "KI-Analyse", text: "Hannes hält sein Handy über die Losung. Kein Empfang, aber die Kamera läuft. Ergebnis der Analyse: 87 % Elch, 9 % Reh, 4 % Sascha.", opts: [
     { label: "Aha.", go: () => ["Elch. Na toll. Ich hab keinen Bock auf dich, Elch."] },
     { label: "Sascha?!", go: () => ["Sascha war hier. Ich wusste es. Erst die Blaubeeren, jetzt das."] }
   ] };
@@ -570,7 +570,7 @@
   // Untertitel zum GoPro-Video (Sekunden im Clip)
   const GOPRO_UT = [[0, 3.6, "Und hier ist alles nass. Und ich hab nasse Schuhe."], [4.8, 5.6, "Ja, geil."], [6.2, 7.9, "Boah, das ist … Oh, fuck, ey."], [9.1, 9.5, "Nein."],
     [13.3, 19.2, "Gerade durch nasses Gras gegangen, das hat es einfach direkt durchgelassen."], [19.6, 21.3, "Ich hab die auch noch imprägniert, die scheiß Schuhe."], [21.4, 25.8, "Fuck, ich hätte besser Gummistiefel genommen."]];
-  const ZUNDER = { title: "Anzündwolle", text: "Die rote Faser aus dem Powercord liegt in Jonas' Hand. Draußen ist alles nass, es geht Wind.", opts: [
+  const ZUNDER = { bild: "zunder", ton: "wind", title: "Anzündwolle", text: "Die rote Faser aus dem Powercord liegt in Jonas' Hand. Draußen ist alles nass, es geht Wind.", opts: [
     { label: "So wie sie ist auf das Reisig legen", value: false, go: (E) => { E.time(15); return ["Funken drauf … kurze Flamme … und weg.", "Wiederholter Fehlversuch. Fucking fuck."]; } },
     { label: "Grob in zwei Stücke reißen", value: false, go: (E) => { E.time(15); return ["Ein bisschen geschmort. Nicht aufgegangen.", "Es hat kurz gebrannt … war zu viel Wind."]; } },
     { label: "Ganz fein aufdröseln, jeden Faden einzeln auseinanderzupfen", value: true, go: (E) => { E.h.flags.fein = true; E.learn("zunderfaser"); return ["Jeden Garn wirklich so auseinandergedreht und gezibbelt …"]; } }

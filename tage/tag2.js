@@ -458,11 +458,11 @@
     { label: "Ruhig zur Seite gehen und ihn passieren lassen", go: () => ["J: Ganz ruhig, langsam auf die Seite. Nichts zu sehen. Aber es hat geknallt."] },
     { label: "Kukri ziehen", go: (E) => { E.stat("fourth", -5); return ["J: Gibt's heute Abend Elch. … Wär aber ein Großfeuer.", "J: Na gut, steck ich wieder ein."]; } }
   ] };
-  const SPAENE = { title: "Anzünden", text: "Das Schwedenfeuer steht, die Kanne wartet. Wie legst du die Späne rein?", opts: [
+  const SPAENE = { bild: "spaene", ton: "knistern", title: "Anzünden", text: "Das Schwedenfeuer steht, die Kanne wartet. Wie legst du die Späne rein?", opts: [
     { label: "Alle Späne auf einmal reinstopfen", value: false, go: (E) => { E.time(15); return ["Das war erstmal nichts. Zu viele Späne, das Feuer erstickt.", "Nochmal. Da unten soll es brennen."]; } },
     { label: "Erst die feinen Späne, dann die groben nachlegen", value: true, go: () => ["Erst die feinen, dann die groben, von oben Gestrüpp nachschieben …"] }
   ] };
-  const KANNE = { title: "Die Kanne kocht", text: "Es dampft. Gleich kocht es über. Was machst du mit dem Deckel?", opts: [
+  const KANNE = { bild: "kanne", ton: "blubbern", title: "Die Kanne kocht", text: "Es dampft. Gleich kocht es über. Was machst du mit dem Deckel?", opts: [
     { label: "Deckel ganz zuschrauben", go: (E) => { E.goal("essen"); E.stat("hunger", 30); E.stat("fourth", 10); return ["J: Lieber nicht, sonst Überdruck. Also doch halb drauf … und festhalten.", "J: Kann sich sehen lassen. Fehlt nur Zucker und eine Vanille-Eiskugel."]; } },
     { label: "Deckel halb drauf und festhalten", go: (E) => { E.goal("essen"); E.stat("hunger", 35); E.stat("fourth", 12); return ["J: Sicher abstellen. Bleib sicher stehen, bitte.", "J: Unser Smoothie gefällt uns. Mögen wir."]; } },
     { label: "Deckel halb drauf und schnell abnehmen", go: (E) => { E.goal("essen"); E.stat("hunger", 15); E.stat("fourth", -10); return ["J: Was für ein Fail. Die Flasche fällt mir aus der Hand.", "J: Da liegt die ganze Erdbeer-Heuschrecken-Scheiße. Ich ess das jetzt vom Boden. Schmeckt noch nach Erdbeeren.", "J: Hose auch nass. Absoluter Fail."]; } }
@@ -471,7 +471,7 @@
     { label: "Wegflitschen", go: (E) => { E.stat("fourth", -6); return ["J: Weg damit. … Die liegt jetzt irgendwo im Umkreis von einem Meter und krabbelt heute Nacht zurück. Hätte ich sie mal kaputt gemacht."]; } },
     { label: "Zwischen zwei Fingernägeln zerdrücken", go: () => ["J: Knack. Erledigt. Danach einmal komplett nach Zecken absuchen."] }
   ] };
-  const UNFALL = { title: "Ein Pups mit Folgen", text: "Jonas will beim Wäscheabhängen nur kurz etwas Luft ablassen. Es ist nicht nur Luft.", opts: [
+  const UNFALL = { bild: "unfall", ton: "pups", title: "Ein Pups mit Folgen", text: "Jonas will beim Wäscheabhängen nur kurz etwas Luft ablassen. Es ist nicht nur Luft.", opts: [
     { label: "In den See springen und gleich Wäsche waschen", go: (E) => { E.egg("unfall"); E.stat("fourth", 15); return ["J: Zum Glück nur in die Unterhose. Ich opfere mein T-Shirt.", "J: … Das war echt erfrischend. Ich bin fast froh, dass ich mir in die Hose gekackt habe.", "J: Was lernen wir daraus? Kiefernnadeln gut, gut, gut kauen."]; } },
     { label: "Ignorieren und weitermachen", go: (E) => { E.egg("unfall"); E.stat("fourth", -20); return ["J: Nein. Einfach nein. Das geht so nicht weiter."]; } }
   ] };
