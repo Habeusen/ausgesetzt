@@ -138,6 +138,14 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 .choice h3 { margin: 0; font-family: var(--display); font-weight: 700; color: var(--accent); font-size: clamp(15px, 2vw, 22px); letter-spacing: 0.05em; }
 .choice p { margin: 0; font-size: clamp(13px, 1.6vw, 17px); }
 .choice button { font: inherit; font-weight: 700; text-align: left; padding: 9px 12px; border-radius: 5px; border: 1px solid var(--panel-line); background: rgba(255, 255, 255, 0.05); color: var(--fg); cursor: pointer; }
+/* Begegnungen mit Bild: das Bild links, Text und Auswahl rechts */
+.choice.mitbild { grid-template-columns: minmax(90px, 30%) 1fr; column-gap: 14px; width: min(88%, 760px); align-items: start; }
+.choice.mitbild > *:not(.chbild) { grid-column: 2; }
+.chbild { grid-column: 1; grid-row: 1 / span 3; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; border: 1.5px solid var(--panel-line); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5); animation: bildrein 0.5s ease-out; }
+@keyframes bildrein { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+@container stage (max-height: 540px) { .choice.mitbild { grid-template-columns: minmax(70px, 22%) 1fr; } }
+/* Am Lagerfeuer: Auswahl oben links, damit die Runde ums Feuer sichtbar bleibt */
+.choice.camp { left: 2%; top: 17%; bottom: auto; transform: none; width: min(42%, 400px); background: rgba(13, 17, 16, 0.84); }
 .choice button:hover, .choice button:focus-visible { border-color: var(--accent); background: rgba(232, 176, 68, 0.15); outline: none; }
 .toast { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); z-index: 7; padding: 8px 16px; border-radius: 999px; background: rgba(20, 16, 8, 0.85); border: 1px solid var(--accent); color: var(--accent); font-family: var(--display); font-size: clamp(13px, 1.7vw, 18px); letter-spacing: 0.05em; pointer-events: none; white-space: nowrap; }
 .toast.goal { color: #c4e6a6; border-color: var(--ok); background: rgba(10, 20, 8, 0.85); }
@@ -202,6 +210,14 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 .fx .schweiss path:nth-child(2) { animation-delay: 1.4s; }
 @keyframes tropfen { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 0.95; } 70% { opacity: 0.9; transform: translate(0, 70px); } 100% { opacity: 0; transform: translate(0, 90px); } }
 @media (prefers-reduced-motion: reduce) { .poseAnim, .shivering .shiver, .fx * { animation: none !important; } }
+/* Tiere: Flügelschlag, Ringe auf dem Wasser, Elch-Schritte */
+.vogel { transform-box: fill-box; transform-origin: center; animation: flattern 0.32s ease-in-out infinite alternate; }
+@keyframes flattern { from { transform: scaleY(1); } to { transform: scaleY(-0.5); } }
+.ring { transform-box: fill-box; transform-origin: center; animation: ring 1s ease-out forwards; }
+@keyframes ring { from { transform: scale(0.2); opacity: 0.9; } to { transform: scale(1.7); opacity: 0; } }
+.elchbein { transform-box: fill-box; transform-origin: 50% 0; animation: elchschritt 0.9s ease-in-out infinite alternate; }
+.elchbein.b { animation-delay: -0.45s; }
+@keyframes elchschritt { from { transform: rotate(14deg); } to { transform: rotate(-14deg); } }
 /* Schlafende Figur: Zzz steigt vom Kopf auf */
 .zzz text { font: italic 700 64px Georgia, serif; fill: #e8eef7; stroke: #0d1110; stroke-width: 6px; paint-order: stroke; opacity: 0; animation: zzz 3s linear infinite; }
 .zzz text:nth-child(2) { animation-delay: 1s; font-size: 78px; }
@@ -465,6 +481,8 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
         <filter id="rayBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="34"/></filter><g class="rays" filter="url(#rayBlur)"><path class="ray r1" d="M-200,-80 L160,-80 L900,1080 L520,1080 Z" fill="url(#rayGrad)"/><path class="ray r2" d="M60,-80 L260,-80 L1250,1080 L1020,1080 Z" fill="url(#rayGrad)"/><path class="ray r3" d="M300,-80 L420,-80 L1600,1080 L1440,1080 Z" fill="url(#rayGrad)"/></g>
         <g class="fog"><rect class="fogband f1" x="-600" y="470" width="3200" height="230" fill="url(#fogGrad)"/><rect class="fogband f2" x="-900" y="560" width="3400" height="180" fill="url(#fogGrad)"/></g>
       </g>
+      <g id="fauna" pointer-events="none"></g>
+      <g id="camp" pointer-events="none"></g>
       <g id="actors"></g>
       <g id="front" pointer-events="none"></g>
       <rect id="tint" x="0" y="0" width="1920" height="1080" fill="#0a1430" opacity="0" pointer-events="none"/>
@@ -482,14 +500,14 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
       <div class="row2" title="Hunger"><svg viewBox="0 0 24 24"><path d="M7 2v8a2 2 0 0 0 2 2v10h2V12a2 2 0 0 0 2-2V2h-1.5v7h-1V2h-1.5v7h-1V2zM17 2c-2 0-3 2.5-3 6s1.2 4.5 2 5v9h2V2z" fill="#e8b044"/></svg><div class="bar"><i id="b-hunger"></i></div></div>
       <div class="row2" id="fourthRow" title="Stimmung"><svg viewBox="0 0 24 24" id="fourthIcon"><circle cx="12" cy="12" r="9" fill="#a98ae0"/><path d="M8 14.5q4 3.5 8 0" stroke="#1a1430" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="9" cy="10" r="1.3" fill="#1a1430"/><circle cx="15" cy="10" r="1.3" fill="#1a1430"/></svg><div class="bar"><i id="b-fourth"></i></div></div>
     </div>
-    <div class="choice" id="choice" hidden><h3 id="chTitle"></h3><p id="chText"></p><div id="chOpts" style="display:grid;gap:8px"></div></div>
+    <div class="choice" id="choice" hidden><img id="chBild" class="chbild" alt="" hidden><h3 id="chTitle"></h3><p id="chText"></p><div id="chOpts" style="display:grid;gap:8px"></div></div>
     <!-- Ziele in der Szene (am Handy, wo die Kopfzeile außerhalb des Bildes liegt); antippen klappt Liste und Steuerung auf -->
     <div class="gmini" id="gmini" hidden>
       <button type="button" id="gminiBtn" aria-expanded="false" aria-controls="gpanel"><span id="gminiCount">Ziele</span></button>
       <div class="gpanel" id="gpanel" hidden>
         <b id="gpanelWho"></b>
         <ul id="gpanelList"></ul>
-        <p class="ghelp"><b>Steuerung:</b> Boden antippen: laufen · Ding antippen: Auge ansehen, Hand benutzen · Drybag: Gegenstand wählen, dann auf etwas oder jemanden tippen · Lange drücken: klickbare Stellen · Glühbirne: Tipp · Buch: Tagebuch · Oben links: Figur wechseln</p>
+        <p class="ghelp"><b>Steuerung:</b> Boden antippen: laufen · Ding antippen: Auge ansehen, Hand benutzen · Drybag: Gegenstand wählen, dann auf etwas oder jemanden tippen · Ausgang zweimal antippen: sofort hin · Lange drücken: klickbare Stellen · Glühbirne: Tipp · Buch: Tagebuch · Oben links: Figur wechseln</p>
       </div>
     </div>
     <div class="hotlabel" id="hotlabel"></div>
@@ -567,7 +585,7 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
     <button type="button" id="restart">Tag neu starten</button>
     <button type="button" id="toMenu">Menü</button>
   </div>
-  <p class="help"><b>Oben links:</b> Figur wechseln. <b>Boden anklicken:</b> laufen. <b>Ding anklicken:</b> Auge ansehen, Hand benutzen. <b>Drybag:</b> Gegenstand wählen und auf etwas in der Szene, auf eine Figur oder einen zweiten Gegenstand anwenden; Rechtsklick legt ihn zurück. Ab Tag 4 kannst du Gegenstände auch der anderen Figur geben. <b>Leertaste halten</b> oder Stern: klickbare Stellen zeigen. <b>Glühbirne</b> oder T: Tipp. <b>Buch</b> oder B: Tagebuch mit Gelerntem, Originaltönen und Eastereggs. <b>Lautsprecher</b> oder M: Ton aus und an. <b>Am Handy:</b> quer halten, lange auf die Szene drücken zeigt die klickbaren Stellen, das Vollbild-Symbol macht die Szene groß. Der Spielstand wird zu Beginn jedes Tages gespeichert.</p>
+  <p class="help"><b>Oben links:</b> Figur wechseln. <b>Boden anklicken:</b> laufen. <b>Ding anklicken:</b> Auge ansehen, Hand benutzen. <b>Drybag:</b> Gegenstand wählen und auf etwas in der Szene, auf eine Figur oder einen zweiten Gegenstand anwenden; Rechtsklick legt ihn zurück. Ab Tag 4 kannst du Gegenstände auch der anderen Figur geben. <b>Ausgang doppelt anklicken:</b> sofort in den nächsten Ort. <b>Leertaste halten</b> oder Stern: klickbare Stellen zeigen. <b>Glühbirne</b> oder T: Tipp. <b>Buch</b> oder B: Tagebuch mit Gelerntem, Originaltönen und Eastereggs. <b>Lautsprecher</b> oder M: Ton aus und an. <b>Am Handy:</b> quer halten, lange auf die Szene drücken zeigt die klickbaren Stellen, das Vollbild-Symbol macht die Szene groß. Der Spielstand wird zu Beginn jedes Tages gespeichert.</p>
 </div>
 
 <script src="intro.js"></script>

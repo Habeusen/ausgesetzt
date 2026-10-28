@@ -240,8 +240,17 @@
         E.goal("see"); E.learn("orientierung");
         await E.lines(["Der Treffpunkt mit der Feuerstelle und der Bank. Damit Hannes auch kommt, muss ich ihn ja rufen, oder?", "f5-hannesruf"]);
         await E.wait(900);
-        E.arrive("hannes"); E.egg("unterhose");
-        await E.lines(["f5-unterhose", "H: Junge, ich dachte, wer redet hier am frühen Morgen?", "f5-vereint", { narr: "t4m" }]);
+        // Hannes kriecht verschlafen aus seinem Tarp
+        E.place("hannes", 1580, 720, null, -1); E.arrive("hannes"); E.egg("unterhose");
+        await E.wakeUp("hannes");
+        await E.lines(["f5-unterhose", "H: Junge, ich dachte, wer redet hier am frühen Morgen?"]);
+        // Beide laufen aufeinander zu und fallen sich in die Arme
+        await Promise.all([E.walk(880, 830, "jonas"), E.walk(965, 830, "hannes")]);
+        E.face(2000, "jonas"); E.face(0, "hannes");
+        E.pose("jonas", "umarmen"); E.pose("hannes", "umarmen");
+        await E.lines(["f5-vereint"]);
+        E.pose("jonas", null);
+        await E.lines([{ narr: "t4m" }]);
         E.setTogether(true); E.goal("wiedersehen");
         return ["J: Erste Lagebesprechung. Wir machen mal ein bisschen Feuer."];
       }

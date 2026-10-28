@@ -15,7 +15,7 @@ window.Ausgesetzt = (function () {
   };
   const FRAMES = 6, IDLE = 2, STRIDE = 70;
   // Posen-Streifen (tools/posen.py): je Bild PW x PH, Reihenfolge wie in POSEN
-  const POSEN = ["sitzen", "klettern", "knien", "liegen", "handy", "angeln", "hacken", "trinken", "jubeln", "karte"], PW = 620, PH = 600;
+  const POSEN = ["sitzen", "klettern", "knien", "liegen", "handy", "angeln", "hacken", "trinken", "jubeln", "karte", "umarmen"], PW = 620, PH = 600;
   const WEATHER = { regen: "Regen", niesel: "Niesel", grau: "Bewölkt", sonne: "Sonne", hitze: "Hitze", gewitter: "Gewitter", nacht: "Nacht" };
 
   function day(n, def) {
@@ -174,7 +174,7 @@ window.Ausgesetzt = (function () {
   // Alles im Browser erzeugt: Platschen, Hacken, Rascheln, Gluckern, Schnarchen, Papier, Kratzen am Fels
   let sfxBus = null;
   // Pegel je Geräusch, damit alle etwa gleich deutlich über der Umgebung liegen und unter den Stimmen bleiben
-  const PEGEL = { platsch: 3.2, raus: 2.6, hacken: 0.7, rascheln: 1, kratzen: 3, papier: 1.1, gluckern: 1.7, schnarchen: 2.8 };
+  const PEGEL = { zischen: 0.55, grunzen: 0.85, summen: 5.5, krachen: 1.3, bellen: 2.1, knarzen: 3, plopp: 1.2, specht: 0.9, platsch: 3.2, raus: 2.6, hacken: 0.7, rascheln: 1, kratzen: 3, papier: 1.1, gluckern: 1.7, schnarchen: 2.8 };
   const audioCtx = () => ac;
   // probe: { ac, ziel } rendert unhörbar in einen anderen Kontext (nur für automatische Tests)
   function sfx(name, vol, probe) {
@@ -221,6 +221,53 @@ window.Ausgesetzt = (function () {
     } else if (name === "gluckern") {
       // Schlucke aus der Flasche
       for (let i = 0; i < 4; i++) { const t0 = now + 0.15 + i * 0.38; ton(t0, 240, 520, 0.11, 0.5); ton(t0 + 0.05, 380, 760, 0.07, 0.25); }
+    } else if (name === "plopp") {
+      ton(now, 700, 180, 0.12, 0.5);
+      tropfen(now + 0.08, 3, 0.4, 0.08);
+    } else if (name === "specht") {
+      // Schnelles Klopfen am Baum, wird zum Ende leiser
+      const n = 9 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < n; i++) { const t0 = now + i * 0.055, k = ac.createBufferSource(), b = ac.createBuffer(1, 400, sr), d = b.getChannelData(0); for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.exp(-j / 40); k.buffer = b; const g = ac.createGain(); g.gain.value = 0.9 * (1 - i / n * 0.6); k.connect(filter("bandpass", 1500, 2)).connect(g).connect(out); k.start(t0); }
+    } else if (name === "zischen") {
+      // Schlange: langes, scharfes Zischen, an- und abschwellend
+      const n = rausch(1.6, (k) => Math.sin(Math.PI * Math.min(1, k * 1.4)) * (0.8 + 0.2 * Math.sin(k * 40)));
+      n.connect(filter("highpass", 4200)).connect(filter("lowpass", 9000)).connect(out); n.start(now);
+    } else if (name === "grunzen") {
+      // Wildschwein: tiefe, raue Grunzer
+      for (let i = 0; i < 3; i++) {
+        const t0 = now + i * 0.42, o = ac.createOscillator(), g = ac.createGain(), am = ac.createOscillator(), amg = ac.createGain();
+        o.type = "sawtooth"; o.frequency.setValueAtTime(95 + Math.random() * 20, t0); o.frequency.exponentialRampToValueAtTime(70, t0 + 0.28);
+        am.frequency.value = 32; amg.gain.value = 0.5; am.connect(amg).connect(g.gain);
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.6, t0 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.3);
+        o.connect(filter("lowpass", 600)).connect(g).connect(out); o.start(t0); am.start(t0); o.stop(t0 + 0.32); am.stop(t0 + 0.32);
+      }
+    } else if (name === "summen") {
+      // Bremsen: summende Flügel, die vorbeifliegen
+      for (let i = 0; i < 2; i++) {
+        const t0 = now + i * 0.6, o = ac.createOscillator(), g = ac.createGain(), v = ac.createOscillator(), vg = ac.createGain();
+        o.type = "sawtooth"; o.frequency.value = 190 + i * 40; v.frequency.value = 6; vg.gain.value = 25; v.connect(vg).connect(o.frequency);
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.3);
+        o.connect(filter("bandpass", 500, 2)).connect(g).connect(out); o.start(t0); v.start(t0); o.stop(t0 + 1.35); v.stop(t0 + 1.35);
+      }
+    } else if (name === "krachen") {
+      // Äste brechen im Wald: mehrere trockene Knacks und ein dumpfer Tritt
+      for (let i = 0; i < 4; i++) { const t0 = now + i * 0.22 + Math.random() * 0.1, n = rausch(0.07, (k) => Math.pow(1 - k, 3)); const g = ac.createGain(); g.gain.setValueAtTime(0.9, t0); n.connect(filter("bandpass", 1800 + Math.random() * 1500, 1.5)).connect(g).connect(out); n.start(t0); }
+      ton(now + 0.5, 90, 45, 0.3, 0.7, "sine");
+    } else if (name === "bellen") {
+      // Rehbock: heiseres, kurzes Bellen, zweimal
+      for (let i = 0; i < 2; i++) {
+        const t0 = now + i * 0.9, n = rausch(0.28, (k) => Math.pow(1 - k, 1.5) * Math.min(1, k * 20));
+        const f = filter("bandpass", 900, 3); f.frequency.setValueAtTime(1100, t0); f.frequency.exponentialRampToValueAtTime(600, t0 + 0.25);
+        n.connect(f).connect(out); n.start(t0); ton(t0, 420, 260, 0.22, 0.35, "sawtooth");
+      }
+    } else if (name === "knarzen") {
+      // Nasser Stamm: Holz knarzt und Wasser plätschert darunter
+      const o = ac.createOscillator(), g = ac.createGain(), am = ac.createOscillator(), amg = ac.createGain();
+      o.type = "sawtooth"; o.frequency.setValueAtTime(140, now); o.frequency.linearRampToValueAtTime(110, now + 0.9);
+      am.frequency.value = 18; amg.gain.value = 0.6; am.connect(amg).connect(g.gain);
+      g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.35, now + 0.2); g.gain.exponentialRampToValueAtTime(0.0001, now + 1);
+      o.connect(filter("bandpass", 700, 4)).connect(g).connect(out); o.start(now); am.start(now); o.stop(now + 1.05); am.stop(now + 1.05);
+      tropfen(now + 0.3, 6, 1, 0.08);
     } else if (name === "schnarchen") {
       // Einatmen mit Schnarren, kurz still, Ausatmen
       const ein = rausch(1.3, (k) => Math.sin(Math.PI * k) * (0.6 + 0.4 * Math.sin(k * 1300)));
@@ -235,6 +282,72 @@ window.Ausgesetzt = (function () {
     if (!h || h.pose !== "hacken" || h.room !== hero().room) return;
     sfx("hacken", 0.9);
     setTimeout(() => hackTakt(id), 600);
+  }
+
+  // ---------- Tiere und Regen auf dem Wasser ----------
+  // Wasserflächen im Raum (aus den Hotspots): Punkte für springende Fische und Regenringe, obere Kante als fernes Ufer für den Elch
+  let wasserPunkte = [], wasserRand = null, elchUnterwegs = false;
+  function scanWasser() {
+    wasserPunkte = []; wasserRand = null;
+    const rg = S && $("room-" + hero().room);
+    $("fauna").innerHTML = ""; elchUnterwegs = false;
+    if (!rg) return;
+    for (const el of rg.querySelectorAll(".hot")) {
+      if (!/see|wasser|bach|pfuetze|teich/.test(el.dataset.hot) || el.getAttribute("display") === "none" || !el.isPointInFill) continue;
+      let b; try { b = el.getBBox(); } catch (e) { continue; }
+      if (!b.width) continue;
+      for (let i = 0; i < 120; i++) { const x = b.x + Math.random() * b.width, y = b.y + Math.random() * b.height; try { if (el.isPointInFill(new DOMPoint(x, y))) wasserPunkte.push([x, y]); } catch (e) { break; } }
+    }
+    // Elch-Weg am fernen Ufer: je Raum von Hand gesetzt (elch: [x0, x1, y]), weil die Wasserflächen im Bild nicht genau am Ufer enden
+    const el = room().elch; if (el) wasserRand = { x0: el[0], x1: el[1], y: el[2] };
+  }
+  const NS2 = "http://www.w3.org/2000/svg";
+  function fauna(markup, tf) { const g = document.createElementNS(NS2, "g"); g.innerHTML = markup; if (tf) g.setAttribute("transform", tf); $("fauna").appendChild(g); return g; }
+  function bahn(g, ms, fn) { const t0 = performance.now(); const step = (now) => { const k = Math.min(1, (now - t0) / ms); if (!g.isConnected) return; fn(k); k < 1 ? requestAnimationFrame(step) : g.remove(); }; requestAnimationFrame(step); }
+  function voegel() {
+    const n = 3 + Math.floor(Math.random() * 5), rechts = Math.random() < 0.5, y0 = 70 + Math.random() * 220, sc = 0.7 + Math.random() * 0.6;
+    let m = ""; for (let i = 0; i < n; i++) m += `<path class="vogel" style="animation-delay:${(-Math.random()).toFixed(2)}s" transform="translate(${(i * 46 - (i % 2) * 20).toFixed(0)} ${((i % 3) * 22 - i * 6).toFixed(0)})" d="M-14,0 q7,-9 14,0 q7,-9 14,0" fill="none" stroke="#1d2024" stroke-width="3.5" stroke-linecap="round"/>`;
+    const g = fauna(m);
+    bahn(g, 9000 + Math.random() * 4000, (k) => { const x = rechts ? -300 + k * 2500 : 2200 - k * 2500; g.setAttribute("transform", `translate(${x.toFixed(0)} ${(y0 - k * 60 + Math.sin(k * 9) * 12).toFixed(0)}) scale(${sc})`); });
+  }
+  function fisch() {
+    const p = wasserPunkte[Math.floor(Math.random() * wasserPunkte.length)], s = scaleAt(p[1]) * 0.9, dir = Math.random() < 0.5 ? 1 : -1;
+    const ring = (x, y) => fauna(`<ellipse class="ring" cx="0" cy="0" rx="46" ry="11" fill="none" stroke="#e8f2f6" stroke-opacity="0.75" stroke-width="3"/>`, `translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${s})`);
+    const r1 = ring(p[0], p[1]); setTimeout(() => r1.remove(), 1100);
+    const g = fauna(`<path d="M-30,0 q15,-14 40,0 q-25,14 -40,0 z M8,0 l16,-11 l0,22 z" fill="#2e3c42" stroke="#121a1e" stroke-width="2"/>`);
+    sfx("plopp", 0.5);
+    bahn(g, 850, (k) => {
+      const x = p[0] + dir * k * 90 * s, y = p[1] - Math.sin(Math.PI * k) * 70 * s, rot = dir * (-50 + 100 * k);
+      g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(0)}) scale(${(dir * s).toFixed(3)} ${s.toFixed(3)})`);
+      if (k >= 1) { const r2 = ring(x, p[1]); setTimeout(() => r2.remove(), 1100); }
+    });
+  }
+  function elch() {
+    if (!wasserRand || elchUnterwegs) return;
+    elchUnterwegs = true;
+    const rechts = Math.random() < 0.5, y = wasserRand.y, s = scaleAt(y) * 0.26;
+    const g = fauna(`<g fill="#1d1a15" opacity="0.9"><ellipse cx="0" cy="-300" rx="170" ry="78"/><path d="M118,-345 L200,-428 L252,-430 L290,-382 L262,-364 L218,-386 L158,-296 Z"/><path d="M196,-430 q-34,-62 -86,-72 q42,32 52,66 z M222,-434 q22,-74 84,-84 q-32,38 -52,80 z"/><path d="M-160,-320 q-30,-10 -34,30" fill="none" stroke="#1d1a15" stroke-width="12"/>
+      <rect class="elchbein" x="-140" y="-250" width="24" height="250"/><rect class="elchbein b" x="-104" y="-250" width="24" height="250"/><rect class="elchbein b" x="96" y="-250" width="24" height="250"/><rect class="elchbein" x="128" y="-250" width="24" height="250"/></g>`);
+    const x0 = rechts ? wasserRand.x0 : wasserRand.x1, x1 = rechts ? wasserRand.x1 : wasserRand.x0, ms = Math.abs(x1 - x0) / 40 * 1000;
+    bahn(g, ms, (k) => { g.setAttribute("transform", `translate(${(x0 + (x1 - x0) * k).toFixed(1)} ${y.toFixed(1)}) scale(${(rechts ? s : -s).toFixed(3)} ${s.toFixed(3)})`); g.setAttribute("opacity", Math.min(1, k * 8, (1 - k) * 8).toFixed(2)); if (k >= 1) elchUnterwegs = false; });
+  }
+  function regenring() {
+    if (!wasserPunkte.length || $("fauna").childElementCount > 40) return;
+    const p = wasserPunkte[Math.floor(Math.random() * wasserPunkte.length)], s = scaleAt(p[1]) * 0.45;
+    const r = fauna(`<ellipse class="ring" cx="0" cy="0" rx="40" ry="10" fill="none" stroke="#dfe9ef" stroke-opacity="0.6" stroke-width="3"/>`, `translate(${p[0].toFixed(0)} ${p[1].toFixed(0)}) scale(${s.toFixed(3)})`);
+    setTimeout(() => r.remove(), 1000);
+  }
+  // Alle 250 ms: Regenringe; selten Vögel, Fische, Elch, Specht (nur bei Tag und ohne Störung)
+  function naturTakt() {
+    setTimeout(naturTakt, 250);
+    if (!S || !started || reduce || paused() || document.hidden || !$("menu").hidden) return;
+    const w = weather(), c = hero().clock % 1440, tag = c > 5 * 60 && c < 21 * 60, nass = w === "regen" || w === "gewitter" || w === "niesel";
+    if (nass && Math.random() < (w === "niesel" ? 0.35 : 0.8)) regenring();
+    if (!tag || window.__testFast) return;
+    if (!nass && Math.random() < 0.25 / 25) voegel();
+    if (wasserPunkte.length && w !== "gewitter" && Math.random() < 0.25 / 16) fisch();
+    if (wasserRand && !nass && Math.random() < 0.25 / 100) elch();
+    if (!roomWater(hero().room) && w !== "gewitter" && Math.random() < 0.25 / 50) sfx("specht", 0.6);
   }
 
   // ---------- Szene aufbauen ----------
@@ -315,7 +428,7 @@ window.Ausgesetzt = (function () {
   function showRoom() {
     for (const r in D.rooms) $("room-" + r).setAttribute("display", r === hero().room ? "inline" : "none");
     $("where").textContent = `Tag ${S.day} · ${room().where}`;
-    buildDots(); placeAll(); renderFront(); updateAmbience();
+    buildDots(); placeAll(); renderFront(); scanWasser(); updateAmbience();
   }
 
   // ---------- Leuchtpunkte ----------
@@ -647,6 +760,7 @@ window.Ausgesetzt = (function () {
   // ---------- Wetter-Effekte ----------
   const fx = $("fx"), fctx = fx.getContext("2d");
   let drops = [], flash = 0, nextBolt = 6;
+  let bolt = null, boltAst = null, spritzer = [];
   function drawFx(dt) {
     const w = started && S ? weather() : null;
     fctx.clearRect(0, 0, fx.width, fx.height);
@@ -657,16 +771,40 @@ window.Ausgesetzt = (function () {
     fctx.strokeStyle = "rgba(200,215,230,0.45)"; fctx.lineWidth = 1;
     fctx.beginPath();
     for (const d of drops) {
+      // Jeder Tropfen landet auf seiner eigenen Bodenhöhe (untere Bildhälfte) und spritzt kurz auf
+      if (!d.boden) d.boden = fx.height * (0.6 + Math.random() * 0.4);
       d.y += d.v * dt; d.x -= d.v * dt * 0.15;
-      if (d.y > fx.height) { d.y = -10; d.x = Math.random() * fx.width * 1.1; }
+      if (d.y > d.boden) { if (spritzer.length < 60) spritzer.push({ x: d.x, y: d.boden, t: 0 }); d.y = -10 - Math.random() * 60; d.x = Math.random() * fx.width * 1.1; d.boden = fx.height * (0.6 + Math.random() * 0.4); }
       fctx.moveTo(d.x, d.y); fctx.lineTo(d.x + 3, d.y - 14);
     }
     fctx.stroke();
+    if (spritzer.length) {
+      fctx.strokeStyle = "rgba(215,228,238,0.5)"; fctx.lineWidth = 1; fctx.beginPath();
+      for (const p of spritzer) { p.t += dt; const r = 2 + p.t * 22; fctx.moveTo(p.x - r, p.y - r * 0.6); fctx.lineTo(p.x - r * 0.3, p.y); fctx.moveTo(p.x + r, p.y - r * 0.6); fctx.lineTo(p.x + r * 0.3, p.y); }
+      fctx.stroke();
+      spritzer = spritzer.filter((p) => p.t < 0.18);
+    }
     if (w === "hitze") { fctx.fillStyle = "rgba(255,190,90,0.07)"; fctx.fillRect(0, 0, fx.width, fx.height); }
     if (w === "gewitter") {
       nextBolt -= dt;
-      if (nextBolt <= 0) { flash = 1; nextBolt = 7 + Math.random() * 9; setTimeout(() => { thunder(); flinch(); }, 900 + Math.random() * 2000); }
-      if (flash > 0) { fctx.fillStyle = `rgba(235,240,255,${(flash * 0.6).toFixed(2)})`; fctx.fillRect(0, 0, fx.width, fx.height); flash = Math.max(0, flash - dt * 3); }
+      if (nextBolt <= 0) {
+        flash = 1; nextBolt = 7 + Math.random() * 9; setTimeout(() => { thunder(); flinch(); }, 900 + Math.random() * 2000);
+        // Zickzack-Blitz von oben bis zum Horizont, mit einem Seitenast
+        let x = 80 + Math.random() * (fx.width - 160), y = 0; bolt = [[x, y]];
+        while (y < fx.height * 0.42) { x += (Math.random() - 0.5) * 46; y += 14 + Math.random() * 22; bolt.push([x, y]); }
+        const ab = bolt[Math.floor(bolt.length / 2)]; boltAst = [[ab[0], ab[1]], [ab[0] + 30, ab[1] + 30], [ab[0] + 44, ab[1] + 70]];
+      }
+      if (flash > 0) {
+        fctx.fillStyle = `rgba(235,240,255,${(flash * 0.6).toFixed(2)})`; fctx.fillRect(0, 0, fx.width, fx.height);
+        if (bolt && flash > 0.35) {
+          for (const [weite, farbe] of [[6, "rgba(190,210,255,0.45)"], [2.2, "rgba(255,255,255,0.95)"]]) {
+            fctx.strokeStyle = farbe; fctx.lineWidth = weite; fctx.beginPath();
+            for (const linie of [bolt, boltAst]) linie.forEach(([bx, by], i) => (i ? fctx.lineTo(bx, by) : fctx.moveTo(bx, by)));
+            fctx.stroke();
+          }
+        }
+        flash = Math.max(0, flash - dt * 3);
+      }
     }
   }
 
@@ -761,6 +899,11 @@ window.Ausgesetzt = (function () {
       stopTalk(); closeVerbs(); setInv(false); stopWalk();
       $("chTitle").textContent = enc.title;
       $("chText").textContent = enc.text;
+      // Bild zur Begegnung (events/<bild>.jpg) und ein passendes Geräusch
+      const bild = $("chBild");
+      bild.hidden = !enc.bild; $("choice").classList.toggle("mitbild", !!enc.bild);
+      if (enc.bild) bild.src = "events/" + enc.bild + ".jpg";
+      if (enc.ton) setTimeout(() => sfx(enc.ton), 250);
       const box = $("chOpts");
       box.innerHTML = "";
       enc.opts.forEach((o) => {
@@ -901,6 +1044,7 @@ window.Ausgesetzt = (function () {
   scene.addEventListener("pointerup", pressEnd);
   scene.addEventListener("pointercancel", pressEnd);
   scene.addEventListener("contextmenu", (e) => { if (pressShown || e.pointerType === "touch") e.preventDefault(); });
+  let lastExit = { key: null, t: 0 };
   scene.addEventListener("click", (e) => {
     if (!started) return;
     if (pressShown) return; // Das war ein langes Drücken, kein Klick
@@ -913,7 +1057,17 @@ window.Ausgesetzt = (function () {
     if (hot) {
       const key = hot.dataset.hot;
       const spot = room().hot[key];
-      if (spot && spot.exit) { select(null); run(key, { use: true }); return; }
+      if (spot && spot.exit) {
+        // Schnellreise: Ein zweiter Klick auf denselben Ausgang, während die Figur noch hinläuft, springt direkt hin
+        const h = hero(), jetzt = performance.now();
+        if (lastExit.key === key && jetzt - lastExit.t < 4000 && h.target && h.resolve) {
+          h.x = h.target.x; h.y = h.target.y; h.target = null; h.phase = 0;
+          const r = h.resolve; h.resolve = null; placeAll(); r(true);
+          lastExit.key = null; return;
+        }
+        lastExit = { key, t: jetzt };
+        select(null); run(key, { use: true }); return;
+      }
       if (selected) { run(key, { item: selected }); return; }
       openVerbs(key, e);
       return;
@@ -1140,9 +1294,46 @@ window.Ausgesetzt = (function () {
 
   // ---------- Schlafen, Nacht, Tagesende ----------
   // Abend am Feuer (zu zweit) oder Video-Tagebuch (allein): Themen wählen, Antworten sind Originaltöne
+  // Abend am Feuer: Die Figuren setzen sich auf Baumstümpfe ums Feuer, die Auswahl rückt an den Rand
+  function feuerStelle() {
+    const r = room(), rg = $("room-" + hero().room);
+    // Ein schon brennendes Feuer im Raum (gezeichnete Flammen) hat Vorrang
+    const brennt = rg && [...rg.querySelectorAll('use[href="#flames"]')].find((u) => u.parentNode.getAttribute("opacity") !== "0");
+    if (brennt) { const m = /translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(brennt.getAttribute("transform") || ""); if (m) return { x: +m[1], y: +m[2], brennt: true }; }
+    const k = Object.keys(r.hot).find((x) => /feuer/.test(x) && r.hot[x].poly && !r.hot[x].hidden);
+    if (k) { const n = r.hot[k].poly.match(/-?\d+(\.\d+)?/g).map(Number), xs = n.filter((v, i) => i % 2 === 0), ys = n.filter((v, i) => i % 2 === 1); return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: Math.max(...ys) - 25 }; }
+    const h = hero(); return { x: h.x + 260 * h.dir, y: h.y };
+  }
+  function campStart() {
+    const ids = D.together ? anwesend() : [active], f = feuerStelle(), s = scaleAt(f.y), vorher = ids.map((id) => { const h = S.chars[id]; return { id, x: h.x, y: h.y, dir: h.dir, pose: h.pose }; });
+    const stuempfe = [];
+    ids.forEach((id, i) => {
+      const h = S.chars[id], seite = ids.length === 1 ? (h.x <= f.x ? -1 : 1) : i === 0 ? -1 : 1;
+      h.target = null; h.x = f.x + seite * 250 * s; h.y = f.y + 14; h.dir = -seite; h.pose = "sitzen"; h.lift = 0;
+      // Baumstumpf unter der Hüfte (die Sitzpose hat die Hüfte über dem Fußpunkt)
+      const ss = scaleAt(h.y), bx = h.x, by = h.y - 150 * ss;
+      stuempfe.push(`<g transform="translate(${bx.toFixed(0)} ${by.toFixed(0)}) scale(${ss.toFixed(3)})"><path d="M-62,0 L-58,150 Q0,166 58,150 L62,0 Z" fill="#4a3220" stroke="#22160c" stroke-width="5"/><path d="M-50,30 L-48,140 M-14,24 L-12,152 M24,28 L26,150" stroke="#2c1e12" stroke-width="4" opacity="0.6"/><ellipse cx="0" cy="0" rx="62" ry="18" fill="#a77e52" stroke="#22160c" stroke-width="5"/><ellipse cx="0" cy="0" rx="34" ry="9" fill="none" stroke="#7a5534" stroke-width="3"/></g>`);
+    });
+    const glut = `<circle cx="${f.x}" cy="${f.y - 30 * s}" r="${420 * s}" fill="url(#glow)"/>` + (f.brennt ? "" : `<use href="#flames" transform="translate(${f.x} ${f.y}) scale(${(1.1 * s / 0.66).toFixed(2)})"/>`);
+    $("camp").innerHTML = glut + stuempfe.join("");
+    $("choice").classList.add("camp");
+    placeAll();
+    if (!f.brennt) S.campFeuer = true;
+    return vorher;
+  }
+  function campEnd(vorher) {
+    $("camp").innerHTML = ""; $("choice").classList.remove("camp");
+    if (!S) return;
+    for (const v of vorher) { const h = S.chars[v.id]; Object.assign(h, { x: v.x, y: v.y, dir: v.dir, pose: v.pose }); }
+    S.campFeuer = false; placeAll();
+  }
   async function campfire() {
     const topics = ((D.campfire && D.campfire[owner()]) || []).filter((x) => !x.need || x.need(E));
     if (!topics.length) return;
+    const vorher = campStart();
+    try { await campTalk(topics); } finally { campEnd(vorher); }
+  }
+  async function campTalk(topics) {
     const told = new Set();
     for (;;) {
       const left = topics.filter((x) => !told.has(x.label));
@@ -1444,7 +1635,7 @@ window.Ausgesetzt = (function () {
   // ---------- Kurze Posen ----------
   // Posen, die nur während einer Handlung gelten: nach dem Text (oder beim nächsten Klick) steht die Figur wieder normal
   const ITEM_POSE = { handy: "handy", kukri: "hacken" };
-  const MG_POSE = { angeln: "angeln", karte: "karte", feuer: "knien", schwedenfeuer: "knien", kescher: "knien", loeffel: "hacken" };
+  const MG_POSE = { angeln: "angeln", karte: "karte", feuer: "knien", schwedenfeuer: "knien", kescher: "knien", loeffel: "hacken", kochen: "knien" };
   const ruhig = () => reduce || window.__testFast;
   const warte = (ms) => new Promise((r) => setTimeout(r, ruhig() ? 0 : ms));
   function tempPose(id, pose) {
@@ -1597,6 +1788,8 @@ window.Ausgesetzt = (function () {
     // Hinsetzen: Hüfte auf (x, Sitzhöhe), Füße am Boden bei y. Aufstehen mit E.stand.
     sit(id, x, y, dir) { const h = S.chars[id], r = h.resolve; h.target = null; h.resolve = null; if (r) r(false); h.x = x; h.y = y; if (dir) h.dir = dir; h.pose = "sitzen"; h.lift = 0; h.bob = 0; placeAll(); },
     nap,
+    // Aus dem Schlafplatz kriechen und strecken (z. B. Hannes beim Wiedersehen)
+    wakeUp: (ids) => wakeUp([].concat(ids)),
     // Kurze Haltung während eigener Texte (z. B. Handy hoch oben auf dem Felsen); null hebt sie auf
     pose(id, p) { if (p) tempPose(id, p); else clearTemp(); },
     stand(id) { const h = S.chars[id]; h.pose = null; h.lift = 0; h.bob = 0; placeAll(); },
@@ -1621,6 +1814,7 @@ window.Ausgesetzt = (function () {
     renderMute();
     renderMenu();
     requestAnimationFrame(tick);
+    naturTakt();
   }
   // Nur für automatische Tests: ein Geräusch stumm rendern und Spitze/Lautheit messen
   async function sfxProbe(name) {
@@ -1630,5 +1824,5 @@ window.Ausgesetzt = (function () {
     let peak = 0, sum = 0; for (const v of d) { peak = Math.max(peak, Math.abs(v)); sum += v * v; }
     return { peak: +peak.toFixed(3), rms: +Math.sqrt(sum / d.length).toFixed(4) };
   }
-  return { day, boot, sfxProbe, minigame: (name, fn) => { MINIGAMES[name] = fn; }, CHARS, E };
+  return { day, boot, sfxProbe, natur: { voegel, fisch, elch, regenring, punkte: () => wasserPunkte.length, rand: () => wasserRand }, minigame: (name, fn) => { MINIGAMES[name] = fn; }, CHARS, E };
 })();

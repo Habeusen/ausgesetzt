@@ -126,6 +126,67 @@
     api.button("Abbrechen", () => api.done(false));
   });
 
+  // ---------- Kochen am Feuer: Zutaten rein, rühren (oder den Fisch wenden), nichts anbrennen lassen ----------
+  // opts: title, text, zutaten (Namen), wenden (true: Fisch am Stock statt Topf)
+  M("kochen", (api, opts) => {
+    const wenden = !!opts.wenden, zutaten = (opts.zutaten || []).map((n) => ({ n, drin: false }));
+    api.title(opts.title || (wenden ? "Fisch am Stock" : "Kochen am Feuer"));
+    api.text(opts.text || (wenden ? "Der Barsch hängt über der Glut. Wende ihn rechtzeitig (Knopf oder Leertaste), sonst brennt eine Seite an." : "Gib alle Zutaten hinein und rühr immer wieder um (Knopf oder Leertaste), sonst brennt es am Boden an."));
+    const { ctx } = canvas(api);
+    let garen = 0, brand = 0, still = 0, ruehr = 0, seite = 0, done = false, flammen = 0, maxBrand = 0;
+    const dauer = (wenden ? 10 : 9) + zutaten.length * 1.5;
+    const aktion = () => { if (done) return; brand = Math.max(0, brand - (wenden ? 0.55 : 0.3)); still = 0; ruehr = 1; if (wenden) seite = 1 - seite; };
+    api.button(wenden ? "Wenden" : "Umrühren", aktion);
+    for (const z of zutaten) {
+      const b = api.button(z.n, () => { if (z.drin || done) return; z.drin = true; b.disabled = true; b.style.opacity = "0.4"; ruehr = 1; });
+    }
+    const onKey = spaceKey(aktion);
+    document.addEventListener("keydown", onKey);
+    const ende = (ok, text, farbe) => { done = true; api.msg(text, farbe); setTimeout(() => { stop(); document.removeEventListener("keydown", onKey); api.done(ok); }, 1700); };
+    const stop = loop((dt) => {
+      flammen += dt;
+      if (!done) {
+        still += dt; ruehr = Math.max(0, ruehr - dt * 3);
+        // Ohne Rühren/Wenden steigt die Hitze am Boden immer schneller
+        if (still > (wenden ? 1.6 : 1.1)) brand = Math.min(1, brand + dt * (wenden ? 0.32 : 0.38));
+        maxBrand = Math.max(maxBrand, brand);
+        const alle = zutaten.every((z) => z.drin);
+        garen = Math.min(alle ? 1 : 0.92, garen + dt / dauer);
+        if (brand >= 1) ende(false, wenden ? "Schwarz auf einer Seite. Na ja, die andere geht noch." : "Angebrannt! Riecht nach Lagerfeuer. Essen kann man's trotzdem.", "#ff8a6a");
+        else if (garen >= 1) ende(true, wenden ? "Knusprig von beiden Seiten. Perfekt." : "Fertig. Riecht richtig gut!", "#c4e6a6");
+        else if (!alle && garen >= 0.92) api.msg("Da fehlt noch was. Alle Zutaten rein!", "#f0d97a");
+      }
+      // Zeichnen: Glut und Flammen, darüber Topf oder Fisch am Stock
+      ctx.fillStyle = "#120e0b"; ctx.fillRect(0, 0, 960, 440);
+      ctx.fillStyle = "#2a1c12"; ctx.beginPath(); ctx.ellipse(420, 380, 210, 40, 0, 0, Math.PI * 2); ctx.fill();
+      for (let i = 0; i < 9; i++) {
+        const x = 270 + i * 38, h = 60 + 40 * Math.sin(flammen * 6 + i * 1.7) + brand * 30;
+        ctx.fillStyle = `rgba(255,${120 + i * 8},40,0.75)`; ctx.beginPath(); ctx.moveTo(x - 20, 380); ctx.quadraticCurveTo(x, 380 - h * 1.4, x + 20, 380); ctx.fill();
+      }
+      if (wenden) {
+        ctx.strokeStyle = "#6b4a2c"; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(140, 300); ctx.lineTo(700, 230); ctx.stroke();
+        ctx.save(); ctx.translate(430, 262); ctx.rotate(-0.12); ctx.scale(1, seite ? -1 : 1);
+        const roh = [150, 160, 150], gar = [196, 140, 70], schwarz = [40, 30, 25];
+        const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k)), c = brand > 0.5 ? mix(gar, schwarz, (brand - 0.5) * 2) : mix(roh, gar, Math.min(1, garen + brand));
+        ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.ellipse(0, 0, 110, 36, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(100, 0); ctx.lineTo(160, -30); ctx.lineTo(160, 30); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(-80, -8, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#4b5258"; ctx.beginPath(); ctx.moveTo(300, 190); ctx.lineTo(540, 190); ctx.lineTo(520, 330); ctx.lineTo(320, 330); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = `rgb(${Math.round(110 - brand * 60)},${Math.round(90 - brand * 50)},${Math.round(60 - brand * 30)})`; ctx.beginPath(); ctx.ellipse(420, 196, 116, 20, 0, 0, Math.PI * 2); ctx.fill();
+        zutaten.filter((z) => z.drin).forEach((z, i) => { ctx.fillStyle = ["#d62e26", "#f2c62c", "#5a9a3a", "#8a6a3a"][i % 4]; ctx.beginPath(); ctx.arc(360 + i * 38 + Math.sin(flammen * 3 + i) * 6, 196, 9, 0, Math.PI * 2); ctx.fill(); });
+        ctx.strokeStyle = "#8a6440"; ctx.lineWidth = 9; ctx.beginPath(); const a = flammen * (ruehr > 0 ? 9 : 1); ctx.moveTo(420 + Math.cos(a) * 50, 200 + Math.sin(a) * 8); ctx.lineTo(560, 60); ctx.stroke();
+        if (garen > 0.3) for (let i = 0; i < 4; i++) { const t = (flammen * 0.6 + i / 4) % 1; ctx.fillStyle = `rgba(230,230,230,${(0.35 * (1 - t)).toFixed(2)})`; ctx.beginPath(); ctx.arc(380 + i * 26 + Math.sin(t * 6 + i) * 10, 180 - t * 120, 10 + t * 14, 0, Math.PI * 2); ctx.fill(); }
+      }
+      // Anzeigen: gar (gelb), angebrannt (rot)
+      ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(760, 60, 34, 300); ctx.fillRect(820, 60, 34, 300);
+      ctx.fillStyle = "#e8b044"; ctx.fillRect(760, 360 - garen * 300, 34, garen * 300);
+      ctx.fillStyle = brand > 0.7 ? "#ff5a3a" : "#c8603a"; ctx.fillRect(820, 360 - brand * 300, 34, brand * 300);
+      ctx.fillStyle = "#ece6d6"; ctx.font = "15px Alegreya Sans, sans-serif"; ctx.fillText("gar", 764, 384); ctx.fillText("Hitze", 818, 384);
+    }, () => document.removeEventListener("keydown", onKey));
+  });
+
   // ---------- Knoten (Tag 2 und 7): Abspannknoten in drei Schritten ----------
   M("knoten", (api, opts) => {
     api.title(opts.title || "Abspannknoten");

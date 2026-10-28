@@ -183,12 +183,17 @@
           if (item === "fisch") return ["Erst ausnehmen."];
           if (item === "fisch_sauber") {
             if (!E.flags.h2fire) return ["Ohne Feuer wird das Sushi."];
-            E.swap("fisch_sauber", "fisch_gebraten"); E.time(20); return ["Barsch auf einen Stock und ab ins Feuer.", "Wer hätte gedacht, dass ich hier heute einen kleinen Barsch roste."];
+            const gut = await E.minigame("kochen", { wenden: true, title: "Barsch am Stock" });
+            E.swap("fisch_sauber", "fisch_gebraten"); E.time(20);
+            if (!gut) { E.stat("fourth", -3); return ["Eine Seite ist schwarz. Egal, Barsch ist Barsch."]; }
+            return ["Barsch auf einen Stock und ab ins Feuer.", "Wer hätte gedacht, dass ich hier heute einen kleinen Barsch roste."];
           }
           if (item === "filterflasche_voll" && has("beeren")) {
             if (!E.flags.h2fire) return ["Für den Smoothie brauche ich Feuer."];
             if (!f.gestampft) return ["Die Blaubeeren müssen erst zermatscht werden. Auf einem flachen Stein?"];
+            const gut = await E.minigame("kochen", { title: "Heißer Blaubeer-Shake", zutaten: ["Zermatschte Blaubeeren"] });
             E.drop("beeren"); E.swap("filterflasche_voll", "smoothie"); E.time(15);
+            if (!gut) return ["Zermatschte Blaubeeren ins Wasser, aufkochen … und angebrannt. Schmeckt rauchig.", "Ein heißer Blueberry-Shake mit Lagerfeuer-Note."];
             return ["Zermatschte Blaubeeren ins Wasser, aufkochen …", "Ein heißer Blueberry-Shake. Fehlt nur die Vanille-Eiskugel."];
           }
           return ["Das verbrenne ich lieber nicht."];
@@ -448,7 +453,7 @@
     E.unpersist("barsch1");
     E.h.flags.made = false; return ["Made weg. Beim Ameisenhaufen gibt's neue."];
   }
-  const ELCH = { title: "Lautes Knacken", text: "Am Meldepunkt kracht es unten im Wald. Dumpfe Geräusche, als würden zwei Elche ihre Geweihe aneinanderschlagen.", opts: [
+  const ELCH = { bild: "elch", ton: "krachen", title: "Lautes Knacken", text: "Am Meldepunkt kracht es unten im Wald. Dumpfe Geräusche, als würden zwei Elche ihre Geweihe aneinanderschlagen.", opts: [
     { label: "Lauter reden, damit der Elch ausweicht", go: () => ["J: Hallo Elch! Ich bin's nur! … Er geht mir aus dem Weg. Gut so."] },
     { label: "Ruhig zur Seite gehen und ihn passieren lassen", go: () => ["J: Ganz ruhig, langsam auf die Seite. Nichts zu sehen. Aber es hat geknallt."] },
     { label: "Kukri ziehen", go: (E) => { E.stat("fourth", -5); return ["J: Gibt's heute Abend Elch. … Wär aber ein Großfeuer.", "J: Na gut, steck ich wieder ein."]; } }
@@ -462,7 +467,7 @@
     { label: "Deckel halb drauf und festhalten", go: (E) => { E.goal("essen"); E.stat("hunger", 35); E.stat("fourth", 12); return ["J: Sicher abstellen. Bleib sicher stehen, bitte.", "J: Unser Smoothie gefällt uns. Mögen wir."]; } },
     { label: "Deckel halb drauf und schnell abnehmen", go: (E) => { E.goal("essen"); E.stat("hunger", 15); E.stat("fourth", -10); return ["J: Was für ein Fail. Die Flasche fällt mir aus der Hand.", "J: Da liegt die ganze Erdbeer-Heuschrecken-Scheiße. Ich ess das jetzt vom Boden. Schmeckt noch nach Erdbeeren.", "J: Hose auch nass. Absoluter Fail."]; } }
   ] };
-  const ZECKE2 = { title: "Zecke!", text: "Jonas entdeckt eine Zecke auf seiner Hand.", opts: [
+  const ZECKE2 = { bild: "zecke", title: "Zecke!", text: "Jonas entdeckt eine Zecke auf seiner Hand.", opts: [
     { label: "Wegflitschen", go: (E) => { E.stat("fourth", -6); return ["J: Weg damit. … Die liegt jetzt irgendwo im Umkreis von einem Meter und krabbelt heute Nacht zurück. Hätte ich sie mal kaputt gemacht."]; } },
     { label: "Zwischen zwei Fingernägeln zerdrücken", go: () => ["J: Knack. Erledigt. Danach einmal komplett nach Zecken absuchen."] }
   ] };
@@ -470,7 +475,7 @@
     { label: "In den See springen und gleich Wäsche waschen", go: (E) => { E.egg("unfall"); E.stat("fourth", 15); return ["J: Zum Glück nur in die Unterhose. Ich opfere mein T-Shirt.", "J: … Das war echt erfrischend. Ich bin fast froh, dass ich mir in die Hose gekackt habe.", "J: Was lernen wir daraus? Kiefernnadeln gut, gut, gut kauen."]; } },
     { label: "Ignorieren und weitermachen", go: (E) => { E.egg("unfall"); E.stat("fourth", -20); return ["J: Nein. Einfach nein. Das geht so nicht weiter."]; } }
   ] };
-  const BREMSEN = { title: "Bremsen!", text: "Die Sonne ist da, und mit ihr die Bremsen. Sie umschwirren Hannes am Feuer.", opts: [
+  const BREMSEN = { bild: "bremsen", ton: "summen", title: "Bremsen!", text: "Die Sonne ist da, und mit ihr die Bremsen. Sie umschwirren Hannes am Feuer.", opts: [
     { label: "Ins Wasser flüchten", go: (E) => { E.stat("fourth", 8); return ["H: Ab in den See. Die Bremsen bleiben draußen. Erfrischend!"] ; } },
     { label: "Rauch machen", go: () => ["H: Feuer qualmen lassen. Mücken mögen den Rauch nicht, Bremsen auch nicht so."] },
     { label: "Totschlagen", go: (E) => { E.hurt(4); return ["H: Eine erwischt. Drei haben mich erwischt."]; } }

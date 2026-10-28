@@ -102,7 +102,7 @@
         }
       },
       "hannes-ufer": {
-        where: "Hannes' Ufer", bg: "tag1/ufer-hannes.jpg",
+        where: "Hannes' Ufer", bg: "tag1/ufer-hannes.jpg", elch: [1250, 1560, 350],
         walk: [[230, 700], [300, 600], [420, 560], [560, 540], [640, 600], [1150, 600], [1240, 650], [1720, 700], [1900, 730], [1900, 1060], [280, 1060], [220, 920]],
         center: [960, 840], y0: 560, s0: 0.5, s1: 0.92,
         overlays: `<mask id="bushUfer" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path d="M600,566 Q760,548 900,558 Q1060,546 1200,556 Q1300,560 1360,574 L1360,640 L600,640 Z" fill="#fff" filter="url(#feather)"/></mask>
@@ -443,7 +443,9 @@
             if (!has("metallflasche_ok")) return ["Ich brauche erst abgekochtes Wasser in der Flasche."];
             if (!has("moerser")) return ["Das muss alles zerstampft werden. Ich brauche einen Mörser."];
             if (z.length < 3) return [`Für einen richtigen Eintopf brauche ich mehr Zutaten. Ich hab erst ${z.length}.`];
+            const gut = await E.minigame("kochen", { title: "Schwedenwaldeintopf", zutaten: z.map((x) => ({ heuschrecke: "Heuschrecke", erdbeeren: "Walderdbeeren", kraut: "Kraut", sprossen: "Fichtensprossen" })[x]) });
             z.forEach((x) => E.drop(x)); E.swap("metallflasche_ok", "eintopf"); E.time(30);
+            if (!gut) { E.stat("fourth", -5); return ["Alles in den Mörser, zerstampfen, ab in die Flasche … und ein bisschen angebrannt.", "Schwedenwaldeintopf mit Röstaroma. So nenne ich das mal."]; }
             return ["Alles in den Mörser, zerstampfen, ab in die Flasche …", "Schwedenwaldeintopf. So nenne ich das mal."];
           }
           return ["Das verbrenne ich lieber nicht."];
@@ -547,12 +549,12 @@
     return [];
   }
 
-  const OTTER = { title: "Kreuzotter!", text: "Zwischen den Blaubeeren schlängelt sich eine kleine Kreuzotter. Hannes' Hand ist nur eine Handbreit entfernt.", opts: [
+  const OTTER = { bild: "otter", ton: "zischen", title: "Kreuzotter!", text: "Zwischen den Blaubeeren schlängelt sich eine kleine Kreuzotter. Hannes' Hand ist nur eine Handbreit entfernt.", opts: [
     { label: "Ganz ruhig bleiben und langsam zurückziehen", go: () => ["Ganz langsam … und weg. Kleine Kreuzotter gesehen. Abgehakt."] },
     { label: "Mit einem Stock wegschieben", go: (E) => { E.hurt(30); return ["Au! Die hat mich erwischt!", "Die Hand pocht. Das war dumm."]; } },
     { label: "Schnell die Beeren schnappen", go: (E) => { E.hurt(15); E.add("beeren"); return ["Erwischt … aber sie mich auch. Am Handrücken. Mist."]; } }
   ] };
-  const WILDSCHWEIN = { title: "Wildschwein!", text: "Es knackt im Unterholz. Zwischen den Fichten steht ein Wildschwein und schaut Jonas direkt an.", opts: [
+  const WILDSCHWEIN = { bild: "schwein", ton: "grunzen", title: "Wildschwein!", text: "Es knackt im Unterholz. Zwischen den Fichten steht ein Wildschwein und schaut Jonas direkt an.", opts: [
     { label: "Ruhig verhalten, normal reden, langsam zurückziehen", go: () => ["Ganz ruhig, Kollege … ich geh ja schon.", "Puh. Es trottet weg."] },
     { label: "Wegrennen", go: (E) => { E.hurt(25); return ["Ich renn los – und lieg im Matsch. Knie aufgeschlagen.", "Das Wildschwein? Hat sich nicht mal bewegt."]; } },
     { label: "Den Wolfsschrei machen", go: () => ["Auuuuuuu!", "… Es schaut mich nur komisch an und geht. Peinlich, aber wirksam."] }
@@ -561,7 +563,7 @@
     { label: "Aha.", go: () => ["Elch. Na toll. Ich hab keinen Bock auf dich, Elch."] },
     { label: "Sascha?!", go: () => ["Sascha war hier. Ich wusste es. Erst die Blaubeeren, jetzt das."] }
   ] };
-  const ZECKE = { title: "Zecken", text: "Jonas merkt: Er wollte am Start die Hose in die Socken stecken. Jetzt ist alles schon pitschnass.", opts: [
+  const ZECKE = { bild: "zecke", title: "Zecken", text: "Jonas merkt: Er wollte am Start die Hose in die Socken stecken. Jetzt ist alles schon pitschnass.", opts: [
     { label: "Trotzdem in die Socken stecken und nachsehen", go: () => ["Hose in die Socken. Und … eine Zecke am Knöchel, rechtzeitig erwischt."] },
     { label: "Egal, weiter", go: (E) => { E.hurt(10); return ["Später juckt's am Bein. Da sitzt eine Zecke fest. Toll."]; } }
   ] };
@@ -573,7 +575,7 @@
     { label: "Grob in zwei Stücke reißen", value: false, go: (E) => { E.time(15); return ["Ein bisschen geschmort. Nicht aufgegangen.", "Es hat kurz gebrannt … war zu viel Wind."]; } },
     { label: "Ganz fein aufdröseln, jeden Faden einzeln auseinanderzupfen", value: true, go: (E) => { E.h.flags.fein = true; E.learn("zunderfaser"); return ["Jeden Garn wirklich so auseinandergedreht und gezibbelt …"]; } }
   ] };
-  const NACHT = { title: "Gebell in der Nacht", text: "Aus dem Wald kommt ein heiseres, aggressives Bellen. Jonas liegt allein unter seiner Plane.", opts: [
+  const NACHT = { bild: "nacht", ton: "bellen", title: "Gebell in der Nacht", text: "Aus dem Wald kommt ein heiseres, aggressives Bellen. Jonas liegt allein unter seiner Plane.", opts: [
     { label: "Gegen die Kanne klopfen", go: (E) => { E.unpersist("nachtmesser"); return ["*klong klong klong*", "J: … Seitdem ich gegen die Kanne geklopft hab, hör ich nix mehr."]; } },
     // Wirkt nach: Jonas startet Tag 2 übermüdet
     { label: "Mit dem Messer in der Hand schlafen", go: (E) => { E.persist("nachtmesser"); E.stat("fourth", -10, "jonas"); return ["J: Ich will jetzt gleich mit dem Messer schlafen. An Pennen ist nicht zu denken."]; } },

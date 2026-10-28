@@ -85,7 +85,7 @@
         }
       },
       "grosser-see": {
-        where: "Am großen See", bg: "bg/grosser-see.jpg",
+        where: "Am großen See", bg: "bg/grosser-see.jpg", elch: [430, 700, 540],
         walk: [[0, 780], [500, 740], [900, 730], [1920, 780], [1920, 1060], [0, 1060]],
         center: [900, 900], y0: 700, s0: 0.5, s1: 0.95,
         overlays: `<g id="g-schutz" opacity="0" pointer-events="none"><path d="M60,790 Q320,830 600,790 L600,812 Q320,850 50,812 Z" fill="#071008" opacity="0.5" filter="url(#soft)"/><image href="tag1/plane.png" x="70" y="540" width="520" height="286" filter="url(#gradeJonas)"/></g>
@@ -261,7 +261,7 @@
     return origAct(key, verb, item, E);
   };
 
-  const STAMM = { title: "Baumstamm-Überquerung", text: "Der Stamm liegt quer über dem Seearm. Rutschig, aber breit genug. Wie geht ihr rüber?", opts: [
+  const STAMM = { bild: "stamm", ton: "knarzen", title: "Baumstamm-Überquerung", text: "Der Stamm liegt quer über dem Seearm. Rutschig, aber breit genug. Wie geht ihr rüber?", opts: [
     { label: "Jonas geht vor und reicht Hannes von drüben die Hand", go: (E) => { E.goal("stamm"); E.time(15); return ["J: Ich geh schon mal rüber und mach dir den Weg frei. Los!", "J: Wow … das kann man schon nicht. Aber hier, nimm die Hand.", "H: Jawoll! Sehr gut!", "J: Yes!"]; } },
     { label: "Beide gleichzeitig, schnell rüberrennen", go: (E) => { E.hurt(12); E.hurt(12, "jonas"); E.goal("stamm"); return ["H: Ich geh auf jeden Fall über den Stamm …", "*platsch*", "J: Beide nass bis zur Hüfte. Na gut, drüben sind wir."]; } },
     { label: "Außen herum durchs Gebüsch", go: (E) => { E.stat("fourth", -25); E.stat("fourth", -25, "jonas"); E.goal("stamm"); E.time(60); return ["H: Hier geht's auch … Alles so ein Fick hier.", "J: Eine Stunde später, völlig zerkratzt, auf der anderen Seite."]; } }

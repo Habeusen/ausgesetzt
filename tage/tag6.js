@@ -68,7 +68,7 @@
         }
       },
       steg6: {
-        where: "Alter Steg", bg: "bg/steg6.jpg",
+        where: "Alter Steg", bg: "bg/steg6.jpg", elch: [620, 1500, 345],
         walk: [[0, 780], [400, 780], [900, 730], [1100, 710], [1460, 560], [1480, 590], [1260, 750], [1920, 830], [1920, 1060], [0, 1060]],
         center: [800, 900], y0: 560, s0: 0.5, s1: 0.95,
         overlays: `<g id="st-schatten" opacity="0" pointer-events="none"><path d="M140,700 Q380,740 620,700 L620,720 Q380,760 130,722 Z" fill="#0d1408" opacity="0.5" filter="url(#soft)"/><image href="tag1/plane.png" x="150" y="470" width="470" height="258" filter="url(#gradeHannes)"/></g>
