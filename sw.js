@@ -10,6 +10,7 @@ self.addEventListener("activate", (e) => {
 // Erst aus dem Speicher, sonst aus dem Netz holen und für später merken (auch Töne und Schriften)
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  if (e.request.url.includes("/godot/")) return;   // Godot-Probestück (60 MB) nicht offline speichern
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => {
     if (res && (res.ok || res.type === "opaque") && !e.request.headers.has("range")) { const kopie = res.clone(); caches.open(CACHE).then((c) => c.put(e.request, kopie)); }
     return res;
