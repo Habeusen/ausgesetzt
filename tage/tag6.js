@@ -74,7 +74,7 @@
         overlays: `<g id="st-schatten" opacity="0" pointer-events="none"><path d="M140,700 Q380,740 620,700 L620,720 Q380,760 130,722 Z" fill="#0d1408" opacity="0.5" filter="url(#soft)"/><image href="tag1/plane.png" x="150" y="470" width="470" height="258" filter="url(#gradeHannes)"/></g>
           <g id="st-fire" opacity="0" pointer-events="none"><circle cx="800" cy="800" r="200" fill="url(#glow)"/><use href="#flames" transform="translate(800 830) scale(1)"/></g>`,
         hot: {
-          "st-baeume": { name: "Zwei Kiefern", stand: [520, 800], face: 330, poly: "M180,0 L480,0 L480,690 L180,690 Z" },
+          "st-baeume": { name: "Zwei Kiefern", tent: [330, 715], tent2: [440, 720], stand: [520, 800], face: 330, poly: "M180,0 L480,0 L480,690 L180,690 Z" },
           "st-schild": { name: "Altes Schild", stand: [740, 800], face: 560, poly: "M420,640 L700,680 L690,780 L420,760 Z" },
           "st-steg": { name: "Steg", stand: [1240, 730], face: 1400, poly: "M1000,640 L1460,500 L1480,540 L1240,760 L1000,740 Z" },
           "st-see": { name: "See", kneel: true, stand: [1050, 720], face: 1200, poly: "M700,320 L1920,320 L1920,700 L1500,700 L1000,620 L700,620 Z" },

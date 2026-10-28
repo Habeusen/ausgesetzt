@@ -120,9 +120,9 @@
         hot: {
           losung: { name: "Tierlosung", stand: [1400, 890], face: 1500, poly: "M1450,850 L1550,850 L1550,920 L1450,920 Z" },
           see: { name: "See", kneel: true, stand: [470, 590], face: 700, dot: [560, 480], poly: "M400,420 L1100,420 L1100,520 L620,560 L440,600 L360,560 Z M1190,400 L1920,400 L1920,560 L1190,520 Z" },
-          kiefern: { name: "Zwei Kiefern", stand: [960, 640], face: 960, dot: [785, 300], poly: "M748,0 L822,0 L824,560 L748,560 Z M1112,0 L1186,0 L1186,540 L1112,540 Z" },
+          kiefern: { name: "Zwei Kiefern", stand: [960, 640], face: 960, tent: [820, 620], dot: [785, 300], poly: "M748,0 L822,0 L824,560 L748,560 Z M1112,0 L1186,0 L1186,540 L1112,540 Z" },
           stamm: { name: "Umgestürzter Stamm", stand: [1400, 730], face: 1450, poly: "M1200,570 L1700,620 L1700,690 L1200,620 Z" },
-          tarp: { name: "Tarp", stand: [1000, 700], face: 960, hidden: true, poly: "M780,360 L1150,340 L1290,560 L930,650 L690,590 Z" },
+          tarp: { name: "Tarp", stand: [1000, 700], face: 960, tent: [820, 620], hidden: true, poly: "M780,360 L1150,340 L1290,560 L930,650 L690,590 Z" },
           "exit-lager": { name: "Zur Lichtung", stand: [1860, 820], face: 1920, poly: "M1780,620 L1920,620 L1920,1080 L1780,1080 Z", exit: { to: "hannes-lager", spawn: [280, 800], dir: 1 } }
         }
       },
@@ -139,13 +139,13 @@
         hot: {
           "j-gopro": { name: "GoPro", stand: [600, 800], face: 540, poly: "M524,456 L572,456 L572,498 L524,498 Z" },
           "j-totholz": { name: "Abgestorbener Baum", stand: [300, 820], face: 100, poly: "M0,596 L190,596 L196,676 L0,690 Z" },
-          "j-fichten": { name: "Zwei Fichten", stand: [420, 820], face: 400, dot: [250, 420], poly: "M196,0 L304,0 L312,830 L190,830 Z M488,0 L586,0 L600,780 L470,780 Z" },
+          "j-fichten": { name: "Zwei Fichten", tent: [430, 790], stand: [420, 820], face: 400, dot: [250, 420], poly: "M196,0 L304,0 L312,830 L190,830 Z M488,0 L586,0 L600,780 L470,780 Z" },
           "j-wurzel": { name: "Wurzelteller", stand: [1120, 880], face: 1300, poly: "M1012,250 L1300,250 L1600,400 L1600,700 L1030,690 Z" },
           "j-ueberhang": { name: "Felsvorsprung", stand: [1700, 820], face: 1760, poly: "M1500,300 L1920,300 L1920,590 L1600,590 L1560,420 Z" },
           "j-spuren": { name: "Wühlspuren", stand: [700, 840], face: 760, poly: "M600,700 L870,680 L910,770 L620,790 Z" },
           "j-kraut": { name: "Gelbe Blüten", kneel: true, stand: [720, 1000], face: 830, poly: "M780,880 L900,880 L900,990 L780,990 Z" },
           "j-beeren": { name: "Rote Beeren", kneel: true, stand: [540, 980], face: 400, poly: "M320,880 L460,880 L460,980 L320,980 Z" },
-          "j-plane": { name: "Hornbach-Plane", stand: [560, 860], face: 420, hidden: true, poly: "M230,640 L620,600 L660,800 L210,820 Z" },
+          "j-plane": { name: "Hornbach-Plane", tent: [430, 790], stand: [560, 860], face: 420, hidden: true, poly: "M230,640 L620,600 L660,800 L210,820 Z" },
           "exit-see": { name: "Zum See", stand: [230, 920], face: 0, poly: "M0,620 L180,620 L180,1080 L0,1080 Z", exit: { to: "jonas-see", spawn: [1780, 900], dir: -1 } }
         }
       },

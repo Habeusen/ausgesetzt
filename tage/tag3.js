@@ -69,7 +69,7 @@
       }),
       "treffpunkt": ext(R2["treffpunkt"], {
         "t-platz": { name: "Freie Stelle", stand: [1560, 760], face: 1620, poly: "M1420,600 L1860,600 L1860,700 L1420,700 Z" },
-        "t-tarp": { name: "Tarp", stand: [1560, 760], face: 1620, hidden: true, poly: "M1430,540 L1760,520 L1800,690 L1420,700 Z" },
+        "t-tarp": { name: "Tarp", tent: [1580, 690], tent2: [1680, 690], stand: [1560, 760], face: 1620, hidden: true, poly: "M1430,540 L1760,520 L1800,690 L1420,700 Z" },
         "t-erdbeeren": { name: "Wegrand", kneel: true, stand: [1600, 960], face: 1700, poly: "M1520,900 L1900,900 L1900,1070 L1520,1070 Z" },
         "t-ketten": { name: "Etwas Rostiges im Gras", kneel: true, stand: [460, 1000], face: 360, poly: "M300,990 L420,990 L420,1060 L300,1060 Z" }
       }, {

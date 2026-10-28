@@ -15,7 +15,7 @@ window.Ausgesetzt = (function () {
   };
   const FRAMES = 6, IDLE = 2, STRIDE = 70;
   // Posen-Streifen (tools/posen.py): je Bild PW x PH, Reihenfolge wie in POSEN
-  const POSEN = ["sitzen", "klettern", "knien"], PW = 620, PH = 600;
+  const POSEN = ["sitzen", "klettern", "knien", "liegen"], PW = 620, PH = 600;
   const WEATHER = { regen: "Regen", niesel: "Niesel", grau: "Bewölkt", sonne: "Sonne", hitze: "Hitze", gewitter: "Gewitter", nacht: "Nacht" };
 
   function day(n, def) {
@@ -188,7 +188,8 @@ window.Ausgesetzt = (function () {
         <g class="spriteWrap" pointer-events="none"><svg class="sprite" x="${-c.fw / 2}" y="-480" width="${c.fw}" height="480" viewBox="0 0 ${c.fw} 480" overflow="hidden">
         <image href="${c.strip}" x="0" y="0" width="${c.fw * FRAMES}" height="480"/></svg></g>
         <g class="poseWrap" pointer-events="none" display="none"><svg class="pose" x="${-PW / 2}" y="${-PH}" width="${PW}" height="${PH}" viewBox="0 0 ${PW} ${PH}" overflow="hidden">
-        <image href="${c.posen}" x="0" y="0" width="${PW * POSEN.length}" height="${PH}"/></svg></g>`;
+        <image href="${c.posen}" x="0" y="0" width="${PW * POSEN.length}" height="${PH}"/></svg></g>
+        <g class="zzz" pointer-events="none" display="none"><text x="0" y="0">z</text><text x="0" y="0">z</text><text x="0" y="0">Z</text></g>`;
       g.appendChild(a);
     }
   }
@@ -206,7 +207,10 @@ window.Ausgesetzt = (function () {
     const pi = POSEN.indexOf(h.pose), sw = a.querySelector(".spriteWrap"), pw = a.querySelector(".poseWrap");
     sw.setAttribute("display", pi < 0 ? "inline" : "none");
     pw.setAttribute("display", pi < 0 ? "none" : "inline");
-    a.querySelector("ellipse").setAttribute("display", h.lift ? "none" : "inline");
+    a.querySelector("ellipse").setAttribute("display", h.lift || h.pose === "liegen" ? "none" : "inline");
+    const z = a.querySelector(".zzz");
+    z.setAttribute("display", h.pose === "liegen" && h.done ? "inline" : "none");
+    z.setAttribute("transform", `translate(${h.dir * 200} -110)`);
     if (pi < 0) {
       sw.setAttribute("transform", `scale(${h.dir},1)`);
       a.querySelector(".sprite").setAttribute("viewBox", `${frame * fw} 0 ${fw} 480`);
@@ -224,7 +228,7 @@ window.Ausgesetzt = (function () {
   function showRoom() {
     for (const r in D.rooms) $("room-" + r).setAttribute("display", r === hero().room ? "inline" : "none");
     $("where").textContent = `Tag ${S.day} · ${room().where}`;
-    buildDots(); placeAll(); updateAmbience();
+    buildDots(); placeAll(); renderFront(); updateAmbience();
   }
 
   // ---------- Leuchtpunkte ----------
@@ -910,6 +914,7 @@ window.Ausgesetzt = (function () {
       await enterRoom(spot.exit, t); return;
     }
     face(spot.face);
+    lastSpot = spot;
     // Sitzplätze (sit: [x, y, Blickrichtung], zu zweit sit2 für den Partner): hinsetzen, nach dem Text wieder aufstehen
     const sitzt = verb.use && spot.sit ? [active].concat(D.together && spot.sit2 ? others().filter((id) => !S.chars[id].away) : []) : [];
     sitzt.forEach((id, i) => { const p = i ? spot.sit2 : spot.sit; E.sit(id, p[0], p[1], p[2]); });
@@ -923,13 +928,13 @@ window.Ausgesetzt = (function () {
       else out = [item === "handy" && D.noSignal ? D.noSignal : (ohneWirkung = "Das bringt hier nichts.")];
     }
     // Stellen am Boden (kneel): zum Benutzen hinknien, z. B. Wasser schöpfen, Beeren pflücken, Feuer machen
-    const kniet = !verb.look && spot.kneel && !sitzt.length && !ohneWirkung && t === token;
+    const kniet = !verb.look && spot.kneel && !sitzt.length && !ohneWirkung && t === token && !h.done;
     if (kniet) { h.pose = "knien"; place(active); }
     if (t === token) spend(verb.look ? 1 : 8);
     renderGoals(); renderInv();
     await lines(out, t);
     for (const id of sitzt) if (S.chars[id].pose === "sitzen") E.stand(id);
-    if (kniet && h.pose === "knien") E.stand(active);
+    if (kniet && h.pose === "knien" && !h.done) E.stand(active);
     // Zu zweit freut sich der Partner über ein geschafftes Ziel
     if (t === token && S.cheer) { S.cheer = false; const o = others()[0]; if (o && !S.chars[o].away) { await pauseBetween(180); await say(tagOf(o) + pick(CHEER[o]), t); } }
     if (t === token) timedEvents();
@@ -1043,6 +1048,49 @@ window.Ausgesetzt = (function () {
       if (r == null || !S || told.size >= topics.length) return;
     }
   }
+  // Schlafengehen an der zuletzt benutzten Stelle. Offener Schlafplatz: bed: [x, y, Blickrichtung, Höhe]
+  // (zu zweit bed2) – die Figur liegt sichtbar im Schlafsack. Tarp oder Shelter: tent: [x, y] (zu zweit tent2) –
+  // die Figur kriecht hinein und verschwindet, das Zzz steigt aus dem Tarp.
+  let lastSpot = null;
+  const zzzSvg = (x, y, sc) => `<g class="zzz" transform="translate(${x} ${y}) scale(${sc})"><text>z</text><text>z</text><text>Z</text></g>`;
+  function renderFront() { $("front").innerHTML = (S.sleepZ || []).filter((z) => z.room === hero().room).map((z) => zzzSvg(z.x, z.y, z.s)).join(""); }
+  async function goToBed(ids) {
+    // Nur wenn die Stelle im aktuellen Raum liegt (sonst schläft die Figur einfach dort, wo sie ist)
+    const spot = lastSpot && Object.values(room().hot).includes(lastSpot) ? lastSpot : {};
+    // sleepAt(E, id, i) entscheidet je Figur selbst, z. B. Hängematte für Jonas, Shelter für Hannes
+    const plan = ids.map((id, i) => Object.assign({ id }, spot.sleepAt ? spot.sleepAt(E, id, i) : { bed: i ? spot.bed2 : spot.bed, tent: i ? spot.tent2 : spot.tent })).filter((p) => p.bed || p.tent);
+    if (!plan.length) return;
+    const wait = (ms) => new Promise((r) => setTimeout(r, reduce || window.__testFast ? 0 : ms));
+    S.tint = 0.35; renderHud();
+    for (const p of plan) { const h = S.chars[p.id]; h.target = null; h.pose = "knien"; if (p.tent) h.dir = p.tent[0] >= h.x ? 1 : -1; }
+    placeAll();
+    await wait(600);
+    // Ins Tarp kriechen: kniend hinein und dabei ausblenden
+    const kriecher = plan.filter((p) => p.tent).map((p) => ({ p, h: S.chars[p.id], x0: S.chars[p.id].x, y0: S.chars[p.id].y }));
+    if (kriecher.length && !(reduce || window.__testFast)) {
+      const t0 = performance.now();
+      await new Promise((res) => {
+        const step = (now) => {
+          const k = Math.min(1, (now - t0) / 700);
+          for (const c of kriecher) {
+            c.h.x = c.x0 + (c.p.tent[0] - c.x0) * k * 0.6; c.h.y = c.y0 + (c.p.tent[1] - c.y0) * k * 0.6;
+            place(c.p.id); const a = $("actor-" + c.p.id); if (a) a.setAttribute("opacity", (1 - k).toFixed(2));
+          }
+          k < 1 ? requestAnimationFrame(step) : res();
+        };
+        requestAnimationFrame(step);
+      });
+    }
+    S.sleepZ = S.sleepZ || [];
+    for (const p of plan) {
+      const h = S.chars[p.id], a = $("actor-" + p.id);
+      if (a) a.removeAttribute("opacity");
+      if (p.tent) { h.pose = null; h.hiddenActor = true; S.sleepZ = S.sleepZ.filter((z) => z.id !== p.id); S.sleepZ.push({ id: p.id, room: h.room, x: p.tent[0], y: p.tent[1] - 60, s: 1.5 * scaleAt(p.tent[1], D.rooms[h.room]) }); }
+      else { const b = p.bed; h.x = b[0]; h.y = b[1]; h.dir = b[2] || 1; h.lift = b[3] || 0; h.pose = "liegen"; }
+    }
+    placeAll(); renderFront();
+    await wait(2200);
+  }
   async function sleep() {
     if (!S.flags["_feuer" + owner()]) { S.flags["_feuer" + owner()] = true; S.tint = 0.3; renderHud(); await campfire(); if (!S) return; S.tint = null; }
     const t = token;
@@ -1051,6 +1099,9 @@ window.Ausgesetzt = (function () {
     for (const id of ids) { S.chars[id].done = true; S.chars[id].clock = Math.max(S.chars[id].clock, 21.5 * 60); }
     renderHud();
     stopWalk();
+    await goToBed(ids);
+    if (!S) return;
+    S.tint = null; renderHud();
     const left = Object.keys(S.chars).filter((id) => !S.chars[id].done);
     if (left.length) {
       const o = left[0];
@@ -1135,7 +1186,7 @@ window.Ausgesetzt = (function () {
 
   // ---------- Tag starten ----------
   function startDay(n) {
-    token++;
+    token++; lastSpot = null;
     stopTalk(true);
     D = DAYS[n];
     D.together = D._together0;
@@ -1339,7 +1390,7 @@ window.Ausgesetzt = (function () {
     // Eine Figur taucht auf (vorher "away": kein Bild, keine Wahl oben links)
     arrive(id) { S.chars[id].away = false; show(active); },
     // Nach der Nacht wieder aufwachen und weiterspielen (für das Finale am letzten Morgen)
-    wake(clock) { for (const id in S.chars) { S.chars[id].done = false; if (clock) S.chars[id].clock = clock; } S.inNight = false; S.tint = null; renderHud(); },
+    wake(clock) { for (const id in S.chars) { const h = S.chars[id]; h.done = false; h.pose = null; h.lift = 0; h.hiddenActor = false; if (clock) h.clock = clock; } S.sleepZ = []; placeAll(); renderFront(); S.inNight = false; S.tint = null; renderHud(); },
     // Ab jetzt zu zweit: gemeinsame Ziele, beide in derselben Szene, Partner läuft mit
     setTogether(on) { D.together = on; for (const id in S.chars) S.chars[id].clock = Math.max(...Object.values(S.chars).map((c) => c.clock)); renderGoals(); renderHud(); },
     fire(roomId) { if (!S.fires.has(roomId)) S.stats.feuer++; S.fires.add(roomId); updateAmbience(); },

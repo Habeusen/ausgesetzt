@@ -88,8 +88,8 @@
         hot: {
           "h2-see": { name: "See", kneel: true, stand: [300, 760], face: 100, poly: "M0,470 L500,470 L330,560 L180,620 L170,720 L0,800 Z" },
           "h2-fels": { name: "Granitplatte", stand: [520, 740], face: 420, poly: "M180,560 L560,520 L700,560 L650,720 L200,720 Z" },
-          "h2-kiefern": { name: "Zwei Kiefern", stand: [1010, 600], face: 1000, dot: [912, 300], poly: "M880,0 L945,0 L945,490 L880,490 Z M1115,0 L1175,0 L1175,480 L1115,480 Z" },
-          "h2-tarp": { name: "Tarp", stand: [1010, 600], face: 1000, hidden: true, poly: "M900,380 L1150,350 L1190,480 L860,500 Z" },
+          "h2-kiefern": { name: "Zwei Kiefern", tent: [1020, 490], stand: [1010, 600], face: 1000, dot: [912, 300], poly: "M880,0 L945,0 L945,490 L880,490 Z M1115,0 L1175,0 L1175,480 L1115,480 Z" },
+          "h2-tarp": { name: "Tarp", tent: [1020, 490], stand: [1010, 600], face: 1000, hidden: true, poly: "M900,380 L1150,350 L1190,480 L860,500 Z" },
           "h2-birke": { name: "Umgefallene Birke", stand: [1180, 880], face: 1400, poly: "M1050,640 L1920,700 L1920,820 L1650,800 L1050,720 Z" },
           "h2-holz": { name: "Altes Brett", stand: [1450, 900], face: 1450, poly: "M1230,720 L1660,610 L1680,700 L1320,880 L1230,860 Z" },
           "h2-stein": { name: "Flacher Stein", kneel: true, stand: [880, 860], face: 940, poly: "M900,780 L980,780 L980,830 L900,830 Z" },
