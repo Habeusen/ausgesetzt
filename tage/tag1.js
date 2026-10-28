@@ -80,7 +80,7 @@
     },
     eggs: {
       sascha: "Sascha und die Blaubeeren", ki: "Die KI-Analyse", feuermann: "Der Feuermann", stefan: "Stefan verliert die Geduld",
-      gopro: "Der leere GoPro-Akku", wolf: "Der peinliche Wolfsschrei", orange: "Das orange Signal",
+      gopro: "Alles nass (die GoPro-Aufnahme)", wolf: "Der peinliche Wolfsschrei", orange: "Das orange Signal",
       kroete: "Die essbare Kröte", tee: "Das Tee-Rating", revier: "Mein Revier"
     },
     noSignal: "Kein Empfang. Ich muss irgendwo höher hinauf.",
@@ -351,9 +351,12 @@
           if (item === "kukri") { if (has("kienspan") || E.hasGoal("fire")) return ["Ich hab schon genug Kienspan."]; E.add("kienspan"); E.learn("kienspan"); return ["Mit dem Kukri ein Stück harzige Wurzel abhacken …", "jonas-anzuender"]; }
           return ["Da brauche ich was Scharfes. Mein Kukri vielleicht."];
         case "j-gopro":
-          E.egg("gopro");
-          if (verb.look) return ["Meine GoPro. Akku leer.", "Der Zeitraffer vom Shelterbau hat wohl nicht funktioniert. Na super."];
-          return ["Tot. Die macht heute nichts mehr."];
+          // Die GoPro zeigt die Aufnahme von heute Morgen (Folge 1): alles nass, nasse Schuhe
+          if (f.goproLeer) return [verb.look ? "Meine GoPro. Jetzt ist der Akku wirklich leer." : "Tot. Die macht heute nichts mehr."];
+          await E.lines(["Mal gucken, was die GoPro heute Morgen aufgenommen hat …"]);
+          await E.video({ src: "video/gopro-nass.mp4", label: "GOPRO · TAG 1 · 10:47", who: "jonas", subs: GOPRO_UT });
+          f.goproLeer = true; E.egg("gopro");
+          return ["… und dann war der Akku leer.", "Hat sich seitdem nicht viel geändert. Alles nass."];
         case "j-totholz":
           if (verb.look) return ["Ein längerer, abgestorbener Baum. Gutes, festes Holz zum Schnitzen."];
           if (item === "kukri") {
@@ -551,6 +554,9 @@
     { label: "Trotzdem in die Socken stecken und nachsehen", go: () => ["Hose in die Socken. Und … eine Zecke am Knöchel, rechtzeitig erwischt."] },
     { label: "Egal, weiter", go: (E) => { E.hurt(10); return ["Später juckt's am Bein. Da sitzt eine Zecke fest. Toll."]; } }
   ] };
+  // Untertitel zum GoPro-Video (Sekunden im Clip)
+  const GOPRO_UT = [[0, 3.6, "Und hier ist alles nass. Und ich hab nasse Schuhe."], [4.8, 5.6, "Ja, geil."], [6.2, 7.9, "Boah, das ist … Oh, fuck, ey."], [9.1, 9.5, "Nein."],
+    [13.3, 19.2, "Gerade durch nasses Gras gegangen, das hat es einfach direkt durchgelassen."], [19.6, 21.3, "Ich hab die auch noch imprägniert, die scheiß Schuhe."], [21.4, 25.8, "Fuck, ich hätte besser Gummistiefel genommen."]];
   const ZUNDER = { title: "Anzündwolle", text: "Die rote Faser aus dem Powercord liegt in Jonas' Hand. Draußen ist alles nass, es geht Wind.", opts: [
     { label: "So wie sie ist auf das Reisig legen", value: false, go: (E) => { E.time(15); return ["Funken drauf … kurze Flamme … und weg.", "Wiederholter Fehlversuch. Fucking fuck."]; } },
     { label: "Grob in zwei Stücke reißen", value: false, go: (E) => { E.time(15); return ["Ein bisschen geschmort. Nicht aufgegangen.", "Es hat kurz gebrannt … war zu viel Wind."]; } },

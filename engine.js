@@ -459,7 +459,7 @@ window.Ausgesetzt = (function () {
     }
     if (D.timed) D.timed(E);
   }
-  const paused = () => !started || !$("choice").hidden || !$("half").hidden || !$("dayEnd").hidden || !$("over").hidden || !$("mg").hidden || !$("book").hidden || !$("dayIntro").hidden || narrating || hero().done;
+  const paused = () => !started || !$("choice").hidden || !$("half").hidden || !$("dayEnd").hidden || !$("over").hidden || !$("mg").hidden || !$("book").hidden || !$("dayIntro").hidden || !$("vplayer").hidden || narrating || hero().done;
   function gameOver(id) {
     if (!$("over").hidden) return;
     stopTalk(true); token++;
@@ -691,6 +691,35 @@ window.Ausgesetzt = (function () {
       };
       window.__mgDone = api.done; // nur für automatische Tests
       MINIGAMES[name](api, opts || {});
+    });
+  }
+
+  // ---------- Videos aus den Folgen ----------
+  // E.video({ src, label, subs: [[von, bis, text], ...], who }) spielt einen Clip im GoPro-Rahmen.
+  // Tippen oder „Weiter“ beendet ihn; stumm geschaltet läuft das Bild mit Untertiteln ohne Ton.
+  function video(opt) {
+    if (stale()) return new Promise(() => {});
+    return new Promise((res) => {
+      token++;
+      stopTalk(true); closeVerbs(); setInv(false); stopWalk();
+      const box = $("vplayer"), v = $("vvideo"), sub = $("vsub");
+      sub.style.color = opt.who === "hannes" ? "var(--hannes)" : "var(--jonas)";
+      $("vlabel").textContent = opt.label || "";
+      let fertig = false;
+      const ende = () => {
+        if (fertig) return; fertig = true;
+        v.pause(); v.ontimeupdate = v.onended = v.onerror = null;
+        box.hidden = true; box.onclick = null; sub.textContent = ""; unduck(); res();
+      };
+      v.src = opt.src; v.muted = SAVE.muted; v.currentTime = 0;
+      if (!SAVE.muted) routeVoice(v);
+      v.ontimeupdate = () => { const t = v.currentTime, z = (opt.subs || []).find(([a, b]) => t >= a && t <= b + 0.6); sub.textContent = z ? z[2] : ""; };
+      v.onended = () => setTimeout(ende, 400);
+      v.onerror = ende;
+      box.onclick = (e) => { e.stopPropagation(); ende(); };
+      box.hidden = false;
+      duck();
+      v.play().catch(() => { v.muted = true; v.play().catch(ende); });
     });
   }
 
@@ -1140,6 +1169,7 @@ window.Ausgesetzt = (function () {
   }
   function toMenu() {
     token++; stopTalk(true); started = false;
+    $("vvideo").pause(); $("vplayer").hidden = true;
     selected = null; $("selchip").hidden = true; $("cursorlabel").hidden = true; setGoalPanel(false);
     // Im Menü ist Ruhe: Waldrauschen und Knistern anhalten
     if (ac) ac.suspend();
@@ -1241,7 +1271,7 @@ window.Ausgesetzt = (function () {
     time: spend,
     stat(k, v, who) { const h = who ? S.chars[who] : hero(); h[k] = clamp(h[k] + v); renderHud(); },
     hurt,
-    encounter, minigame,
+    encounter, minigame, video,
     lines: (l) => lines(l, token),
     say: (l) => say(l, token),
     wait: (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms)),

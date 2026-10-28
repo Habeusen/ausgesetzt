@@ -271,6 +271,16 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 .crroll dd { margin: 0; font-weight: 700; font-size: clamp(13px, 1.6vw, 17px); }
 .crroll p { font-family: var(--narr); font-style: italic; color: var(--erz); font-size: clamp(13px, 1.7vw, 18px); }
 .credits .x { position: absolute; right: 2%; top: 3%; font: inherit; font-weight: 700; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.5); color: var(--fg); cursor: pointer; z-index: 2; }
+/* Videos aus den Folgen (z. B. die GoPro): eigener Rahmen mit Aufnahme-Punkt und Untertiteln */
+.vplayer { position: absolute; inset: 0; z-index: 8; display: grid; place-items: center; background: rgba(0, 0, 0, 0.82); }
+.vframe { position: relative; width: min(82%, calc(82cqh * 16 / 9)); aspect-ratio: 16 / 9; border: 3px solid #1a1a1a; border-radius: 10px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px #444, 0 12px 40px rgba(0, 0, 0, 0.7); }
+.vframe video { width: 100%; height: 100%; display: block; object-fit: cover; }
+.vrec { position: absolute; left: 3%; top: 4%; font: 700 clamp(10px, 1.4vw, 14px)/1 var(--body); color: #ff4a3a; text-shadow: 0 1px 3px #000; animation: rec 1.2s steps(2) infinite; }
+@keyframes rec { 50% { opacity: 0.2; } }
+.vlabel { position: absolute; right: 3%; top: 4%; font: 700 clamp(10px, 1.4vw, 14px)/1 var(--body); color: #fff; text-shadow: 0 1px 3px #000; opacity: 0.85; }
+.vsub { position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); width: 90%; margin: 0; text-align: center; font-weight: 700; font-size: clamp(13px, 2vw, 22px); color: var(--jonas); text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 6px #000; }
+.vweiter { position: absolute; right: 3%; bottom: 4%; font: inherit; font-weight: 700; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--accent); background: rgba(0, 0, 0, 0.6); color: var(--fg); cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .vrec { animation: none; } }
 /* Intro als Szene im Spiel */
 .intro { position: absolute; inset: 0; z-index: 9; background: #000; overflow: hidden; }
 /* Vollbild und Handy */
@@ -516,6 +526,7 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
       <button type="button" class="x" id="crClose">Schließen</button>
     </div>
     <div class="intro" id="intro" hidden></div>
+    <div class="vplayer" id="vplayer" hidden><div class="vframe"><video id="vvideo" playsinline preload="auto"></video><span class="vrec">● REC</span><span class="vlabel" id="vlabel"></span><p class="vsub" id="vsub"></p></div><button type="button" class="vweiter" id="vweiter">Weiter</button></div>
     <div class="overlay" id="over" hidden><div><h2>Notruf</h2><p id="overText"></p><button type="button" class="big" id="overGo">Tag neu starten</button></div></div>
     <div class="toast" id="toast" hidden></div>
   </div>
