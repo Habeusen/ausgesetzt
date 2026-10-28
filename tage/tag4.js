@@ -60,6 +60,8 @@
 
     rooms: {
       "jonas-wald": ext(R3["jonas-wald"], {
+        // Den Felsufer-Raum gibt es heute nicht: Jonas packt und bricht auf
+        "exit-see": Object.assign({}, R3["jonas-wald"].hot["exit-see"], { exit: Object.assign({}, R3["jonas-wald"].hot["exit-see"].exit, { need: () => ["Keine Zeit mehr für den See. Heute geht's zu Hannes."] }) }),
         "exit-aufbruch": { name: "Aufbrechen zu Hannes", stand: [1780, 900], face: 1920, poly: "M1830,780 L1920,780 L1920,1040 L1830,1040 Z",
           exit: { to: "aufstieg", spawn: [400, 1010], dir: 1, need: (E) => (E.hasGoal("packen") ? null : ["Erst packen. Plane, Schnur, alles muss in den Drybag."]) } }
       }),

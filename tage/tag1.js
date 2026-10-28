@@ -246,7 +246,9 @@
             // Hannes klettert sichtbar hoch, schickt das OK und kommt wieder runter
             const unten = [h.x, h.y];
             await E.climb(E.active, 1440, 548, 0, -1); E.time(10);
+            E.pose(E.active, "handy");
             await E.lines(sendOk("Rauf auf den Felsen … oben ein Balken!"));
+            E.pose(E.active, null);
             await E.climb(E.active, unten[0], unten[1], 0, 1);
             return [];
           }
@@ -372,7 +374,9 @@
             // Jonas kraxelt sichtbar auf den Felsvorsprung und wieder runter
             const unten = [h.x, h.y];
             await E.climb(E.active, 1690, 606, 0, 1); E.time(10);
+            E.pose(E.active, "handy");
             await E.lines(sendOk("Ich kraxel auf den Felsvorsprung … ein Balken!"));
+            E.pose(E.active, null);
             await E.climb(E.active, unten[0], unten[1], 0, -1);
             return [];
           }

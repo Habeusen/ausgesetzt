@@ -15,7 +15,7 @@ window.Ausgesetzt = (function () {
   };
   const FRAMES = 6, IDLE = 2, STRIDE = 70;
   // Posen-Streifen (tools/posen.py): je Bild PW x PH, Reihenfolge wie in POSEN
-  const POSEN = ["sitzen", "klettern", "knien", "liegen"], PW = 620, PH = 600;
+  const POSEN = ["sitzen", "klettern", "knien", "liegen", "handy", "angeln", "hacken", "trinken", "jubeln", "karte"], PW = 620, PH = 600;
   const WEATHER = { regen: "Regen", niesel: "Niesel", grau: "Bewölkt", sonne: "Sonne", hitze: "Hitze", gewitter: "Gewitter", nacht: "Nacht" };
 
   function day(n, def) {
@@ -140,6 +140,10 @@ window.Ausgesetzt = (function () {
     $("atmo").setAttribute("class", `w-${w}${night ? " night" : ""}${c < 9 * 60 && !night ? " morgen" : ""}`);
     const look = night ? "" : w === "regen" || w === "niesel" || w === "gewitter" ? "lookRegen" : w === "hitze" ? "lookHitze" : evening ? "lookAbend" : w === "grau" ? "lookGrau" : "";
     if (look) $("actors").setAttribute("filter", `url(#${look})`); else $("actors").removeAttribute("filter");
+    // Regen: ab und zu zittern. Kalter Morgen: Atemwölkchen. Hitze: Schweißtropfen.
+    const nass = w === "regen" || w === "niesel" || w === "gewitter";
+    const fx = w === "hitze" && !night ? "schweiss" : (c < 9 * 60 || c >= 20 * 60) && w !== "hitze" ? "atem" : "";
+    if (fx !== S.fx || nass !== S.nass) { S.fx = fx; S.nass = nass; for (const id in S.chars) S.chars[id].shiver = nass; placeAll(); }
   }
   function updateAmbience() {
     updateLook();
@@ -185,10 +189,14 @@ window.Ausgesetzt = (function () {
       a.id = "actor-" + id;
       a.innerHTML = `<ellipse cx="0" cy="2" rx="95" ry="20" fill="url(#shadowGrad)"/>
         <rect class="hot" data-hot="char:${id}" x="-90" y="-470" width="180" height="470" fill="#000" fill-opacity="0"/>
+        <clipPath id="wasser-${id}"><rect class="wl" x="-600" y="-900" width="1200" height="900"/></clipPath>
+        <g class="body" clip-path="url(#wasser-${id})"><g class="shiver">
         <g class="spriteWrap" pointer-events="none"><svg class="sprite" x="${-c.fw / 2}" y="-480" width="${c.fw}" height="480" viewBox="0 0 ${c.fw} 480" overflow="hidden">
         <image href="${c.strip}" x="0" y="0" width="${c.fw * FRAMES}" height="480"/></svg></g>
-        <g class="poseWrap" pointer-events="none" display="none"><svg class="pose" x="${-PW / 2}" y="${-PH}" width="${PW}" height="${PH}" viewBox="0 0 ${PW} ${PH}" overflow="hidden">
-        <image href="${c.posen}" x="0" y="0" width="${PW * POSEN.length}" height="${PH}"/></svg></g>
+        <g class="poseWrap" pointer-events="none" display="none"><g class="poseAnim"><svg class="pose" x="${-PW / 2}" y="${-PH}" width="${PW}" height="${PH}" viewBox="0 0 ${PW} ${PH}" overflow="hidden">
+        <image href="${c.posen}" x="0" y="0" width="${PW * POSEN.length}" height="${PH}"/></svg></g></g></g></g>
+        <ellipse class="ripple" cx="0" cy="0" rx="95" ry="12" fill="none" stroke="#e8f2f6" stroke-opacity="0.6" stroke-width="4" display="none"/>
+        <g class="fx" pointer-events="none"></g>
         <g class="zzz" pointer-events="none" display="none"><text x="0" y="0">z</text><text x="0" y="0">z</text><text x="0" y="0">Z</text></g>`;
       g.appendChild(a);
     }
@@ -203,11 +211,23 @@ window.Ausgesetzt = (function () {
     const r = D.rooms[h.room], s = scaleAt(h.y, r), fw = CHARS[id].fw;
     const frame = h.target && !reduce ? Math.floor(h.phase) % FRAMES : IDLE;
     // lift: sichtbar höher (auf einem Felsen), ohne dass sich Größe oder Reihenfolge ändern
-    a.setAttribute("transform", `translate(${h.x.toFixed(1)},${(h.y - (h.lift || 0)).toFixed(1)}) scale(${s.toFixed(3)})`);
+    // sink: im Wasser bis zu den Schultern versinken (der Körper wird an der Wasserlinie abgeschnitten)
+    const sink = h.sink || 0;
+    a.setAttribute("transform", `translate(${h.x.toFixed(1)},${(h.y - (h.lift || 0) + sink * s).toFixed(1)}) scale(${s.toFixed(3)})`);
+    a.querySelector(".wl").setAttribute("height", (900 - sink).toFixed(1));
+    const rp = a.querySelector(".ripple"); rp.setAttribute("display", sink > 4 ? "inline" : "none"); rp.setAttribute("cy", (-sink).toFixed(1));
+    a.setAttribute("class", "actor" + (h.pose ? " p-" + h.pose : "") + (h.shiver ? " shivering" : ""));
     const pi = POSEN.indexOf(h.pose), sw = a.querySelector(".spriteWrap"), pw = a.querySelector(".poseWrap");
     sw.setAttribute("display", pi < 0 ? "inline" : "none");
     pw.setAttribute("display", pi < 0 ? "none" : "inline");
-    a.querySelector("ellipse").setAttribute("display", h.lift || h.pose === "liegen" ? "none" : "inline");
+    a.querySelector("ellipse").setAttribute("display", h.lift || sink || h.pose === "liegen" ? "none" : "inline");
+    const fxg = a.querySelector(".fx"), fxArt = !h.pose || h.pose === "handy" || h.pose === "angeln" || h.pose === "karte" ? S.fx || "" : "";
+    if (fxg.dataset.art !== fxArt) {
+      fxg.dataset.art = fxArt;
+      fxg.innerHTML = fxArt === "atem" ? '<g class="atem"><circle r="18"/><circle r="13" cx="10" cy="6"/></g>'
+        : fxArt === "schweiss" ? '<g class="schweiss"><path d="M0,0 q-13,22 0,30 q13,-8 0,-30z"/><path d="M-34,10 q-11,18 0,25 q11,-7 0,-25z"/></g>' : "";
+    }
+    fxg.setAttribute("transform", `translate(${h.dir * (fxArt === "atem" ? 52 : 18)} ${fxArt === "atem" ? -400 : -430}) scale(${h.dir},1)`);
     const z = a.querySelector(".zzz");
     z.setAttribute("display", h.pose === "liegen" && h.done ? "inline" : "none");
     z.setAttribute("transform", `translate(${h.dir * 200} -110)`);
@@ -347,6 +367,7 @@ window.Ausgesetzt = (function () {
     const mini = $("gminiBtn"); mini.classList.remove("flash"); void mini.offsetWidth; mini.classList.add("flash");
     const label = (D.goals[owner()].find((x) => x[0] === k) || [k, k])[1];
     toast(`Ziel erreicht: ${label}`, "goal");
+    S.jubel = true;
     if (D.together && started) S.cheer = true;
   }
 
@@ -511,7 +532,7 @@ window.Ausgesetzt = (function () {
     const h = who ? S.chars[who] : hero();
     if (h.resolve) h.resolve(false);
     const [cx, cy] = h === hero() ? clampWalk(x, y) : [x, y];
-    h.pose = null; h.lift = 0; h.bob = 0;
+    h.pose = null; h.lift = 0; h.bob = 0; h.sink = 0;
     // Nur für automatische Tests: ohne Laufen direkt ans Ziel
     if (window.__testFast) { h.x = cx; h.y = cy; h.target = null; placeAll(); return Promise.resolve(true); }
     return new Promise((res) => { h.target = { x: cx, y: cy }; h.resolve = res; });
@@ -697,6 +718,9 @@ window.Ausgesetzt = (function () {
     return new Promise((res) => {
       token++;
       stopTalk(); closeVerbs(); setInv(false); stopWalk();
+      // Passende Haltung (Angel, Karte, am Feuer knien) bleibt bis nach dem Text stehen
+      const mp = MG_POSE[name];
+      if (mp) for (const id of name === "karte" ? anwesend() : [active]) if (!S.chars[id].pose) tempPose(id, mp);
       const mg = $("mg"), body = $("mgBody"), foot = $("mgFoot");
       body.innerHTML = ""; foot.innerHTML = "";
       $("mgTitle").textContent = ""; $("mgText").textContent = "";
@@ -882,22 +906,27 @@ window.Ausgesetzt = (function () {
   // ---------- Handlungen ----------
   async function run(key, verb) {
     let t = ++token;
+    clearTemp();
     const h = hero(), item = verb.item;
     if (item) select(null);
     if (key.startsWith("char:")) {
       const id = key.slice(5);
       let out;
-      if (id === active) out = (D.self && (await D.self(verb, item, E))) || selfDefault(verb, item);
+      const trink = item && ITEMS[item] && ITEMS[item].drink;
+      if (id === active) { out = (D.self && (await D.self(verb, item, E))) || selfDefault(verb, item); if (trink) tempPose(active, "trinken"); }
       else {
         const o = S.chars[id];
         if (!verb.look) { const ok = await walkTo(o.x + (h.x < o.x ? -150 : 150), o.y); if (!ok || t !== token) return; }
         face(o.x); face(h.x, id);
+        if (trink && (o.thirst < 75 || o.hunger < 75)) tempPose(id, "trinken");
         out = await partnerAction(id, verb, item);
         spend(verb.look ? 1 : 4);
       }
       t = token;
       renderInv(); renderHud(); renderGoals();
       await lines(out, t);
+      clearTemp();
+      if (S && S.jubel) { S.jubel = false; jubel(); }
       return;
     }
     const spot = room().hot[key];
@@ -928,13 +957,25 @@ window.Ausgesetzt = (function () {
       else out = [item === "handy" && D.noSignal ? D.noSignal : (ohneWirkung = "Das bringt hier nichts.")];
     }
     // Stellen am Boden (kneel): zum Benutzen hinknien, z. B. Wasser schöpfen, Beeren pflücken, Feuer machen
-    const kniet = !verb.look && spot.kneel && !sitzt.length && !ohneWirkung && t === token && !h.done;
+    // Gegenstände mit eigener Haltung (Handy hochhalten, mit dem Kukri hacken), Baden, Liegen
+    const wirkt = !verb.look && !ohneWirkung && t === token && !h.done;
+    const itemPose = wirkt && item && ITEM_POSE[item] && !h.pose ? ITEM_POSE[item] : null;
+    if (itemPose) tempPose(active, itemPose);
+    const badet = wirkt && verb.use && spot.bath;
+    if (badet) await bathIn(active, spot.bath);
+    const liegt = wirkt && verb.use && spot.lie && !badet;
+    if (liegt) { const b = spot.lie; h.x = b[0]; h.y = b[1]; h.dir = b[2] || 1; h.lift = b[3] || 0; h.pose = "liegen"; placeAll(); }
+    const kniet = wirkt && spot.kneel && !sitzt.length && !itemPose && !badet && !liegt && (!h.pose || h.pose === "knien");
     if (kniet) { h.pose = "knien"; place(active); }
     if (t === token) spend(verb.look ? 1 : 8);
     renderGoals(); renderInv();
     await lines(out, t);
     for (const id of sitzt) if (S.chars[id].pose === "sitzen") E.stand(id);
     if (kniet && h.pose === "knien" && !h.done) E.stand(active);
+    if (badet && S) await bathOut(active, spot.stand);
+    if (liegt && S && h.pose === "liegen") { h.pose = null; h.lift = 0; h.x = spot.stand[0]; h.y = spot.stand[1]; placeAll(); }
+    if (S && t === token) clearTemp();
+    if (S && S.jubel) { S.jubel = false; jubel(); }
     // Zu zweit freut sich der Partner über ein geschafftes Ziel
     if (t === token && S.cheer) { S.cheer = false; const o = others()[0]; if (o && !S.chars[o].away) { await pauseBetween(180); await say(tagOf(o) + pick(CHEER[o]), t); } }
     if (t === token) timedEvents();
@@ -953,7 +994,7 @@ window.Ausgesetzt = (function () {
     if (D.together) for (const id of others()) { const o = S.chars[id]; o.room = exit.to; o.x = exit.spawn[0] - exit.dir * 170; o.y = exit.spawn[1] + 10; o.dir = exit.dir; o.target = null; o.pose = null; o.lift = 0; }
     showRoom();
     $("fade").classList.remove("on");
-    if (D.enter) { const out = await D.enter(exit.to, E); if (out) await lines(out, t); }
+    if (D.enter) { const out = await D.enter(exit.to, E); if (out) await lines(out, t); clearTemp(); }
   }
   function show(id) {
     active = id;
@@ -1238,6 +1279,8 @@ window.Ausgesetzt = (function () {
     started = true;
     const t = ++token;
     hero().introduced = true;
+    // Ab Tag 2 beginnt der Morgen mit Aufwachen: aus dem Schlafplatz kriechen und strecken
+    if (S.day > 1) wakeUp(Object.keys(S.chars).filter((id) => S.chars[id].room === hero().room));
     // Erst die Szene ankommen lassen, dann setzt der Erzähler ein
     await pauseBetween(900);
     if (t !== token) return;
@@ -1328,6 +1371,92 @@ window.Ausgesetzt = (function () {
   $("fsBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleFullscreen(); });
   $("fullscreen").addEventListener("click", toggleFullscreen);
 
+  // ---------- Kurze Posen ----------
+  // Posen, die nur während einer Handlung gelten: nach dem Text (oder beim nächsten Klick) steht die Figur wieder normal
+  const ITEM_POSE = { handy: "handy", kukri: "hacken" };
+  const MG_POSE = { angeln: "angeln", karte: "karte", feuer: "knien", schwedenfeuer: "knien", kescher: "knien", loeffel: "hacken" };
+  const ruhig = () => reduce || window.__testFast;
+  const warte = (ms) => new Promise((r) => setTimeout(r, ruhig() ? 0 : ms));
+  function tempPose(id, pose) { const h = S.chars[id]; if (!h || h.done) return; h.pose = pose; (S.temp = S.temp || []).push([id, pose]); place(id); }
+  function clearTemp() {
+    if (!S || !S.temp) return;
+    for (const [id, pose] of S.temp) { const h = S.chars[id]; if (h && h.pose === pose && !h.done) h.pose = null; }
+    S.temp = []; placeAll();
+  }
+  const anwesend = () => Object.keys(S.chars).filter((id) => { const c = S.chars[id]; return c.room === hero().room && !c.away && !c.hiddenActor && !c.done; });
+  // Jubeln nach einem geschafften Ziel (zu zweit jubeln beide)
+  function jubel() {
+    const ids = (D.together ? anwesend() : [active]).filter((id) => !S.chars[id].pose && !S.chars[id].target);
+    for (const id of ids) S.chars[id].pose = "jubeln";
+    placeAll();
+    setTimeout(() => { if (!S) return; for (const id of ids) if (S.chars[id].pose === "jubeln") S.chars[id].pose = null; placeAll(); }, ruhig() ? 0 : 1500);
+  }
+  // Ein- und Ausblenden einer Figur (beim Kriechen ins und aus dem Tarp)
+  async function blende(ids, von, bis, ms, jeSchritt) {
+    if (ruhig()) return;
+    const t0 = performance.now();
+    await new Promise((res) => {
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / ms);
+        for (const id of ids) { const a = $("actor-" + id); if (a) a.setAttribute("opacity", (von + (bis - von) * k).toFixed(2)); }
+        if (jeSchritt) jeSchritt(k);
+        k < 1 ? requestAnimationFrame(step) : res();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  // Aufwachen: aus dem Tarp kriechen (kniend einblenden), strecken, aufstehen
+  async function wakeUp(ids) {
+    ids = ids.filter((id) => S.chars[id] && !S.chars[id].away);
+    for (const id of ids) { const h = S.chars[id]; h.hiddenActor = false; h.lift = 0; h.pose = "knien"; const a = $("actor-" + id); if (a && !ruhig()) a.setAttribute("opacity", "0"); }
+    S.sleepZ = []; renderFront(); placeAll();
+    await blende(ids, 0, 1, 600);
+    for (const id of ids) { const a = $("actor-" + id); if (a) a.removeAttribute("opacity"); }
+    await warte(350);
+    if (!S) return;
+    for (const id of ids) if (S.chars[id].pose === "knien") S.chars[id].pose = "jubeln";
+    placeAll();
+    await warte(900);
+    if (!S) return;
+    for (const id of ids) if (S.chars[id].pose === "jubeln") S.chars[id].pose = null;
+    placeAll();
+  }
+  // Dösen: kurz ins Tarp kriechen, Zzz, wieder raus
+  async function nap() {
+    const spot = lastSpot && Object.values(room().hot).includes(lastSpot) ? lastSpot : null, h = hero();
+    if (!spot || !spot.tent) return;
+    h.target = null; h.pose = "knien"; h.dir = spot.tent[0] >= h.x ? 1 : -1; placeAll();
+    await warte(500);
+    const x0 = h.x, y0 = h.y;
+    await blende([active], 1, 0, 600, (k) => { h.x = x0 + (spot.tent[0] - x0) * k * 0.6; h.y = y0 + (spot.tent[1] - y0) * k * 0.6; place(active); });
+    const a = $("actor-" + active);
+    h.hiddenActor = true; h.pose = null; if (a) a.removeAttribute("opacity");
+    S.sleepZ = [{ id: active, room: h.room, x: spot.tent[0], y: spot.tent[1] - 60, s: 1.5 * scaleAt(spot.tent[1], room()) }];
+    placeAll(); renderFront();
+    await warte(2200);
+    if (!S) return;
+    h.x = x0; h.y = y0;
+    await wakeUp([active]);
+  }
+  // Baden: ins Wasser gehen und bis zu den Schultern eintauchen, danach wieder heraus
+  async function tween(id, to, ms) {
+    const h = S.chars[id], from = {};
+    for (const k in to) from[k] = h[k] || 0;
+    if (ruhig()) { Object.assign(h, to); placeAll(); return; }
+    const t0 = performance.now();
+    await new Promise((res) => {
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        for (const p in to) h[p] = from[p] + (to[p] - from[p]) * e;
+        placeAll();
+        k < 1 ? requestAnimationFrame(step) : res();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  async function bathIn(id, b) { const h = S.chars[id]; h.target = null; h.pose = null; h.dir = b[0] >= h.x ? 1 : -1; await tween(id, { x: b[0], y: b[1], sink: b[2] || 330 }, 900); }
+  async function bathOut(id, st) { const h = S.chars[id]; h.dir = st[0] >= h.x ? 1 : -1; await tween(id, { x: st[0], y: st[1], sink: 0 }, 800); h.sink = 0; placeAll(); }
+
   // ---------- Klettern ----------
   // Figur klettert in drei Zügen nach (x, y), sichtbar um lift höher. Oben steht sie wieder.
   async function climb(id, x, y, lift, dir) {
@@ -1385,12 +1514,15 @@ window.Ausgesetzt = (function () {
     hideActor(id, on) { S.chars[id].hiddenActor = on; placeAll(); },
     // Hinsetzen: Hüfte auf (x, Sitzhöhe), Füße am Boden bei y. Aufstehen mit E.stand.
     sit(id, x, y, dir) { const h = S.chars[id], r = h.resolve; h.target = null; h.resolve = null; if (r) r(false); h.x = x; h.y = y; if (dir) h.dir = dir; h.pose = "sitzen"; h.lift = 0; h.bob = 0; placeAll(); },
+    nap,
+    // Kurze Haltung während eigener Texte (z. B. Handy hoch oben auf dem Felsen); null hebt sie auf
+    pose(id, p) { if (p) tempPose(id, p); else clearTemp(); },
     stand(id) { const h = S.chars[id]; h.pose = null; h.lift = 0; h.bob = 0; placeAll(); },
     climb,
     // Eine Figur taucht auf (vorher "away": kein Bild, keine Wahl oben links)
     arrive(id) { S.chars[id].away = false; show(active); },
     // Nach der Nacht wieder aufwachen und weiterspielen (für das Finale am letzten Morgen)
-    wake(clock) { for (const id in S.chars) { const h = S.chars[id]; h.done = false; h.pose = null; h.lift = 0; h.hiddenActor = false; if (clock) h.clock = clock; } S.sleepZ = []; placeAll(); renderFront(); S.inNight = false; S.tint = null; renderHud(); },
+    wake(clock) { for (const id in S.chars) { const h = S.chars[id]; h.done = false; h.lift = 0; if (clock) h.clock = clock; } wakeUp(Object.keys(S.chars)); S.inNight = false; S.tint = null; renderHud(); },
     // Ab jetzt zu zweit: gemeinsame Ziele, beide in derselben Szene, Partner läuft mit
     setTogether(on) { D.together = on; for (const id in S.chars) S.chars[id].clock = Math.max(...Object.values(S.chars).map((c) => c.clock)); renderGoals(); renderHud(); },
     fire(roomId) { if (!S.fires.has(roomId)) S.stats.feuer++; S.fires.add(roomId); updateAmbience(); },

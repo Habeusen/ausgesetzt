@@ -70,9 +70,9 @@
         hot: {
           "s7-feuer": { name: "Feuerstelle", bed: [520, 880, -1], bed2: [610, 965, -1], kneel: true, stand: [1100, 900], face: 860, poly: "M660,760 L1060,760 L1060,920 L660,920 Z" },
           "s7-sitz": { name: "Sitzstein", stand: [1060, 800], face: 1060, sit: [945, 772, 1], sit2: [1170, 776, -1], poly: "M870,540 L1280,540 L1280,750 L870,750 Z" },
-          "s7-liege": { name: "Liegestein", stand: [1400, 860], face: 1450, poly: "M1290,530 L1700,530 L1700,800 L1290,800 Z" },
+          "s7-liege": { name: "Liegestein", lie: [1500, 860, -1, 215], stand: [1400, 860], face: 1450, poly: "M1290,530 L1700,530 L1700,800 L1290,800 Z" },
           "s7-himbeeren": { name: "Himbeerbüsche", stand: [1500, 960], face: 1650, poly: "M1440,820 L1920,830 L1920,1000 L1440,1000 Z" },
-          "s7-steg": { name: "Kleiner Steg", stand: [480, 800], face: 300, poly: "M120,640 L480,640 L480,780 L120,780 Z" },
+          "s7-steg": { name: "Kleiner Steg", bath: [300, 640], stand: [480, 800], face: 300, poly: "M120,640 L480,640 L480,780 L120,780 Z" },
           "s7-baum": { name: "Umgestürzter Baum am Wasser", stand: [600, 780], face: 500, poly: "M60,480 L900,480 L900,620 L60,620 Z" },
           "s7-schilf": { name: "Schilf", stand: [200, 840], face: 60, poly: "M0,560 L110,560 L110,780 L0,780 Z" },
           "s7-pilz": { name: "Pilz", kneel: true, stand: [1100, 990], face: 1030, poly: "M995,975 L1065,975 L1065,1035 L995,1035 Z" }

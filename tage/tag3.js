@@ -317,6 +317,7 @@
       return [r.stiche < 3 ? "Hab sie erwischt. Jetzt kann ich in Ruhe dösen." : "Tausende Mücken. Die Tür bringt nichts. Ich bin komplett zerstochen.", "Neue Idee für heute Nacht: Regenjacke, Handschuhe, Mütze übers Gesicht."];
     }
     E.time(90); E.stat("fourth", -6);
+    await E.nap();
     return [E.active === "hannes" ? "Ich dös ein bisschen im Tarp. Es regnet die ganze Zeit. Die Zeit vergeht einfach nicht." : "Ein bisschen in der Hängematte dösen. Die Füße werden kalt. Langsam frustriert es mich."];
   }
 

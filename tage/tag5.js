@@ -94,7 +94,7 @@
         hot: {
           "g-baeume": { name: "Kiefern mit tiefen Ästen", tent: [250, 790], tent2: [340, 800], stand: [460, 800], face: 220, poly: "M60,0 L380,0 L380,760 L60,760 Z" },
           "g-feuer": { name: "Alte Feuerstelle", kneel: true, stand: [820, 900], face: 600, poly: "M380,820 L820,820 L820,950 L380,950 Z" },
-          "g-see": { name: "Großer See", kneel: true, stand: [1100, 760], face: 1100, poly: "M300,470 L1920,470 L1920,700 L300,720 Z" },
+          "g-see": { name: "Großer See", kneel: true, bath: [1080, 640], stand: [1100, 760], face: 1100, poly: "M300,470 L1920,470 L1920,700 L300,720 Z" },
           "g-strand": { name: "Steinstrand", kneel: true, stand: [1300, 860], face: 1400, poly: "M800,730 L1920,760 L1920,900 L800,880 Z" }
         }
       }

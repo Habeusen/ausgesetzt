@@ -179,6 +179,29 @@ h1 span { color: var(--muted); font-size: 0.6em; letter-spacing: 0.12em; margin-
 .mg .msg { position: absolute; left: 50%; top: 8%; transform: translateX(-50%); font-weight: 700; font-size: clamp(13px, 1.8vw, 20px); text-align: center; text-shadow: 0 1px 3px #000; pointer-events: none; width: 90%; }
 .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { transform: scale(0.75); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
+/* Posen in Bewegung: Hacken, Angeln, Jubeln, Handy, Trinken */
+.poseAnim { transform-box: fill-box; transform-origin: 50% 100%; }
+.p-hacken .poseAnim { animation: hacken 0.6s ease-in-out infinite; }
+@keyframes hacken { 0%, 100% { transform: rotate(0deg); } 40% { transform: rotate(9deg) translateY(6px); } 55% { transform: rotate(-2deg); } }
+.p-angeln .poseAnim { animation: angelwippen 2.6s ease-in-out infinite; }
+@keyframes angelwippen { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-1.5deg); } }
+.p-jubeln .poseAnim { animation: jubeln 0.45s ease-in-out infinite alternate; }
+@keyframes jubeln { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+.p-handy .poseAnim { animation: handyschwenk 1.8s ease-in-out infinite; }
+@keyframes handyschwenk { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(1.5deg); } }
+.p-trinken .poseAnim { animation: schluck 1.2s ease-in-out infinite; }
+@keyframes schluck { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-1.2deg); } }
+/* Wetter an den Figuren: Zittern bei Regen, Atemwölkchen am kalten Morgen, Schweiß bei Hitze */
+.shiver { transform-box: fill-box; transform-origin: 50% 100%; }
+.shivering .shiver { animation: zittern 5s linear infinite; }
+@keyframes zittern { 0%, 78%, 100% { transform: none; } 80% { transform: translateX(-4px); } 82% { transform: translateX(4px); } 84% { transform: translateX(-4px); } 86% { transform: translateX(3px); } 88% { transform: translateX(-2px); } 90% { transform: none; } }
+.fx .atem circle { fill: #eef3f6; filter: blur(6px); opacity: 0; transform-box: fill-box; transform-origin: center; animation: atem 3.4s ease-out infinite; }
+.fx .atem circle:nth-child(2) { animation-delay: 0.25s; }
+@keyframes atem { 0% { opacity: 0; transform: translate(0, 0) scale(0.4); } 12% { opacity: 0.75; } 60% { opacity: 0; transform: translate(80px, -35px) scale(2.4); } 100% { opacity: 0; } }
+.fx .schweiss path { fill: #bfe3f4; stroke: #3c6e86; stroke-width: 2; opacity: 0; animation: tropfen 2.8s ease-in infinite; }
+.fx .schweiss path:nth-child(2) { animation-delay: 1.4s; }
+@keyframes tropfen { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 0.95; } 70% { opacity: 0.9; transform: translate(0, 70px); } 100% { opacity: 0; transform: translate(0, 90px); } }
+@media (prefers-reduced-motion: reduce) { .poseAnim, .shivering .shiver, .fx * { animation: none !important; } }
 /* Schlafende Figur: Zzz steigt vom Kopf auf */
 .zzz text { font: italic 700 64px Georgia, serif; fill: #e8eef7; stroke: #0d1110; stroke-width: 6px; paint-order: stroke; opacity: 0; animation: zzz 3s linear infinite; }
 .zzz text:nth-child(2) { animation-delay: 1s; font-size: 78px; }
